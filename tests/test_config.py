@@ -19,12 +19,25 @@ def test_config_init():
         Config()
 
 
+def test_config_option():
+    with raises(TypeError):
+        class Config(cabina.Config):
+            DEBUG = False
+
+
+def test_config_cls_option():
+    with raises(TypeError):
+        class Config(cabina.Config):
+            class Main:
+                pass
+
+
 def test_config_attr_get():
     class Config(cabina.Config):
         class Main(cabina.Section):
             pass
 
-    assert Config.Main
+    assert Config.Main == Config.Main
 
 
 def test_config_attr_set():
@@ -73,3 +86,21 @@ def test_config_item_del():
 
     with raises(TypeError):
         del Config["Main"]
+
+
+def test_config_len_no_sections():
+    class Config(cabina.Config):
+        pass
+
+    assert len(Config) == 0
+
+
+def test_config_len_with_sections():
+    class Config(cabina.Config):
+        class First(cabina.Section):
+            pass
+
+        class Second(cabina.Section):
+            pass
+
+    assert len(Config) == 2

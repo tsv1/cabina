@@ -19,7 +19,7 @@ def test_section_init():
         Main()
 
 
-def test_config_attr_get():
+def test_section_attr_get():
     class Main(cabina.Section):
         API_HOST = "localhost"
         API_PORT = 8080
@@ -28,7 +28,7 @@ def test_config_attr_get():
     assert Main.API_PORT == 8080
 
 
-def test_config_attr_set():
+def test_section_attr_set():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
@@ -36,7 +36,7 @@ def test_config_attr_set():
         Main.API_HOST = "127.0.0.1"
 
 
-def test_config_attr_del():
+def test_section_attr_del():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
@@ -44,7 +44,7 @@ def test_config_attr_del():
         del Main.API_HOST
 
 
-def test_config_item_get():
+def test_section_item_get():
     class Main(cabina.Section):
         API_HOST = "localhost"
         API_PORT = 8080
@@ -53,7 +53,7 @@ def test_config_item_get():
     assert Main["API_PORT"] == 8080
 
 
-def test_config_item_set():
+def test_section_item_set():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
@@ -61,9 +61,24 @@ def test_config_item_set():
         Main["API_HOST"] = "127.0.0.1"
 
 
-def test_config_item_del():
+def test_section_item_del():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
     with raises(TypeError):
         del Main["API_HOST"]
+
+
+def test_section_len_no_sections():
+    class Main(cabina.Section):
+        pass
+
+    assert len(Main) == 0
+
+
+def test_section_len_with_sections():
+    class Main(cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+    assert len(Main) == 2

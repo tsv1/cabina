@@ -64,3 +64,17 @@ def test_section_config_iter_with_members():
 
     members = [member for member in Config]
     assert members == ["API_HOST", "API_PORT", "Main"]
+
+
+def test_section_config_contains():
+    class Config(cabina.Config, cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+        class Main(cabina.Section):
+            DEBUG = False
+
+    assert "API_HOST" in Config
+    assert "Main" in Config
+    assert "DEBUG" not in Config
+    assert "DEBUG" in Config.Main

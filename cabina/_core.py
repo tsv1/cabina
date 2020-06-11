@@ -72,6 +72,9 @@ class MetaBase(type):
     def __iter__(cls) -> Iterator[Any]:
         return cls.__members__.__iter__()
 
+    def __contains__(cls, item: Any) -> bool:
+        return item in cls.__members__
+
 
 class Section(metaclass=MetaBase):
     __frozen__ = False

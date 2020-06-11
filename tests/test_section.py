@@ -99,3 +99,11 @@ def test_section_iter_with_options():
 
     options = [option for option in Main]
     assert options == ["API_HOST", "API_PORT"]
+
+
+def test_section_contains():
+    class Main(cabina.Section):
+        DEBUG = False
+
+    assert "DEBUG" in Main
+    assert "banana" not in Main

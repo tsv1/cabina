@@ -124,3 +124,12 @@ def test_config_iter_with_sections():
 
     sections = [section for section in Config]
     assert sections == ["First", "Second"]
+
+
+def test_config_contains():
+    class Config(cabina.Config):
+        class Main(cabina.Section):
+            pass
+
+    assert "Main" in Config
+    assert "banana" not in Config

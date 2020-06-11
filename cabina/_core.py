@@ -22,7 +22,7 @@ def _is_config(cls: Any) -> bool:
 
 
 class MetaBase(type):
-    def __init__(cls, name: str, bases: Tuple[Any], attrs: Dict[Any, Any]) -> None:
+    def __init__(cls, name: str, bases: Tuple[Any], attrs: Dict[str, Any]) -> None:
         super().__init__(name, bases, attrs)
 
         if _is_config(cls) or _is_section(cls):
@@ -46,21 +46,21 @@ class MetaBase(type):
         if _is_config(cls) or _is_section(cls):
             cls.__frozen__ = True
 
-    def __setattr__(cls, name: Any, value: Any) -> None:
+    def __setattr__(cls, name: str, value: Any) -> None:
         if cls.__frozen__:
             raise TypeError(f"__setattr__ {name}")
         super().__setattr__(name, value)
 
-    def __delattr__(cls, name: Any) -> None:
+    def __delattr__(cls, name: str) -> None:
         raise TypeError(f"__delattr__ {name}")
 
-    def __getitem__(cls, item: Any) -> Any:
+    def __getitem__(cls, item: str) -> Any:
         return getattr(cls, item)
 
-    def __setitem__(cls, key: Any, value: Any) -> None:
+    def __setitem__(cls, key: str, value: Any) -> None:
         raise TypeError(f"__setitem__ {key}")
 
-    def __delitem__(cls, key: Any) -> None:
+    def __delitem__(cls, key: str) -> None:
         raise TypeError(f"__delitem__ {key}")
 
     def __call__(cls, *args: Any, **kwargs: Any) -> None:
@@ -69,25 +69,25 @@ class MetaBase(type):
     def __len__(cls) -> int:
         return len(cls.__members__)
 
-    def __iter__(cls) -> Iterator[Any]:
+    def __iter__(cls) -> Iterator[str]:
         return cls.__members__.__iter__()
 
-    def __contains__(cls, item: Any) -> bool:
+    def __contains__(cls, item: str) -> bool:
         return item in cls.__members__
 
-    def keys(cls) -> KeysView[Any]:
+    def keys(cls) -> KeysView[str]:
         return cls.__members__.keys()
 
     def values(cls) -> ValuesView[Any]:
         return cls.__members__.values()
 
-    def items(cls) -> ItemsView[Any, Any]:
+    def items(cls) -> ItemsView[str, Any]:
         return cls.__members__.items()
 
 
 class Section(metaclass=MetaBase):
     __frozen__ = False
-    __members__: Dict[Any, Any] = {}
+    __members__: Dict[str, Any] = {}
 
 
 _Section = Section
@@ -95,7 +95,7 @@ _Section = Section
 
 class Config(metaclass=MetaBase):
     __frozen__ = False
-    __members__:  Dict[Any, Any] = {}
+    __members__:  Dict[str, Any] = {}
 
 
 _Config = Config

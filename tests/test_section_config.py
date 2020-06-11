@@ -1,5 +1,7 @@
 from typing import ItemsView, KeysView, ValuesView
 
+from pytest import raises
+
 import cabina
 
 
@@ -9,6 +11,90 @@ def test_section_config():
 
     assert issubclass(Config, cabina.Config)
     assert issubclass(Config, cabina.Section)
+
+
+def test_section_config_get_attr():
+    class Config(cabina.Config, cabina.Section):
+        HOST = "localhost"
+
+        class Main(cabina.Section):
+            pass
+
+    assert Config.Main == Config.Main
+    assert Config.HOST == "localhost"
+
+
+def test_section_config_set_attr_not_allowed():
+    class Config(cabina.Config, cabina.Section):
+        HOST = "localhost"
+
+        class Main(cabina.Section):
+            pass
+
+    class Section(cabina.Section):
+        pass
+
+    with raises(TypeError):
+        Config.HOST = "127.0.0.1"
+
+    with raises(TypeError):
+        Config.Main = Section
+
+
+def test_section_config_del_attr_not_allowed():
+    class Config(cabina.Config, cabina.Section):
+        HOST = "localhost"
+
+        class Main(cabina.Section):
+            pass
+
+    with raises(TypeError):
+        del Config.Main
+
+    with raises(TypeError):
+        del Config.HOST
+
+
+def test_section_config_get_item():
+    class Config(cabina.Config, cabina.Section):
+        HOST = "localhost"
+
+        class Main(cabina.Section):
+            pass
+
+    assert Config["Main"] == Config.Main
+    assert Config["HOST"] == "localhost"
+
+
+def test_section_config_set_item_not_allowed():
+    class Config(cabina.Config, cabina.Section):
+        HOST = "localhost"
+
+        class Main(cabina.Section):
+            pass
+
+    class Section(cabina.Section):
+        pass
+
+    with raises(TypeError):
+        Config["HOST"] = "127.0.0.1"
+
+    with raises(TypeError):
+        Config["Main"] = Section
+
+
+def test_section_config_del_item_not_allowed():
+    class Config(cabina.Config, cabina.Section):
+        HOST = "localhost"
+
+        class Main(cabina.Section):
+            pass
+
+    with raises(TypeError):
+        del Config["Main"]
+
+    with raises(TypeError):
+        del Config["HOST"]
 
 
 def test_section_config_len_without_members():

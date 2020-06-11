@@ -11,7 +11,7 @@ def test_config():
     assert not issubclass(Config, cabina.Section)
 
 
-def test_config_init():
+def test_config_init_not_allowed():
     class Config(cabina.Config):
         pass
 
@@ -19,20 +19,20 @@ def test_config_init():
         Config()
 
 
-def test_config_option():
+def test_config_options_not_allowed():
     with raises(TypeError):
         class Config(cabina.Config):
             DEBUG = False
 
 
-def test_config_cls_option():
+def test_config_class_options_not_allowed():
     with raises(TypeError):
         class Config(cabina.Config):
             class Main:
                 pass
 
 
-def test_config_attr_get():
+def test_config_get_attr():
     class Config(cabina.Config):
         class Main(cabina.Section):
             pass
@@ -40,7 +40,7 @@ def test_config_attr_get():
     assert Config.Main == Config.Main
 
 
-def test_config_attr_set():
+def test_config_set_attr_not_allowed():
     class Config(cabina.Config):
         pass
 
@@ -51,7 +51,7 @@ def test_config_attr_set():
         Config.Main = Section
 
 
-def test_config_attr_del():
+def test_config_del_attr_not_allowed():
     class Config(cabina.Config):
         class Main(cabina.Section):
             pass
@@ -60,7 +60,7 @@ def test_config_attr_del():
         del Config.Main
 
 
-def test_config_item_get():
+def test_config_get_item():
     class Config(cabina.Config):
         class Main(cabina.Section):
             pass
@@ -68,7 +68,7 @@ def test_config_item_get():
     assert Config["Main"] == Config.Main
 
 
-def test_config_item_set():
+def test_config_set_item_not_allowed():
     class Config(cabina.Config):
         pass
 
@@ -79,7 +79,7 @@ def test_config_item_set():
         Config["Main"] = Section
 
 
-def test_config_item_del():
+def test_config_del_item_not_allowed():
     class Config(cabina.Config):
         class Main(cabina.Section):
             pass
@@ -88,7 +88,7 @@ def test_config_item_del():
         del Config["Main"]
 
 
-def test_config_len_no_sections():
+def test_config_len_without_sections():
     class Config(cabina.Config):
         pass
 
@@ -104,3 +104,23 @@ def test_config_len_with_sections():
             pass
 
     assert len(Config) == 2
+
+
+def test_config_iter_without_sections():
+    class Config(cabina.Config):
+        pass
+
+    sections = [section for section in Config]
+    assert sections == []
+
+
+def test_config_iter_with_sections():
+    class Config(cabina.Config):
+        class First(cabina.Section):
+            pass
+
+        class Second(cabina.Section):
+            pass
+
+    sections = [section for section in Config]
+    assert sections == ["First", "Second"]

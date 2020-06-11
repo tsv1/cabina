@@ -9,7 +9,7 @@ def test_section_config():
     assert issubclass(Config, cabina.Section)
 
 
-def test_section_config_len_no_sections():
+def test_section_config_len_without_members():
     class Config(cabina.Config, cabina.Section):
         pass
 
@@ -35,7 +35,7 @@ def test_section_config_len_with_options():
     assert len(Config) == 2
 
 
-def test_section_config_len_with_sections_and_options():
+def test_section_config_len_with_members():
     class Config(cabina.Config, cabina.Section):
         API_HOST = "localhost"
         API_PORT = 8080
@@ -44,3 +44,23 @@ def test_section_config_len_with_sections_and_options():
             DEBUG = False
 
     assert len(Config) == 3
+
+
+def test_section_config_iter_without_members():
+    class Config(cabina.Config, cabina.Section):
+        pass
+
+    members = [member for member in Config]
+    assert members == []
+
+
+def test_section_config_iter_with_members():
+    class Config(cabina.Config, cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+        class Main(cabina.Section):
+            DEBUG = False
+
+    members = [member for member in Config]
+    assert members == ["API_HOST", "API_PORT", "Main"]

@@ -11,7 +11,7 @@ def test_section():
     assert not issubclass(Main, cabina.Config)
 
 
-def test_section_init():
+def test_section_init_not_allowed():
     class Main(cabina.Section):
         pass
 
@@ -19,7 +19,7 @@ def test_section_init():
         Main()
 
 
-def test_section_attr_get():
+def test_section_get_attr():
     class Main(cabina.Section):
         API_HOST = "localhost"
         API_PORT = 8080
@@ -28,7 +28,7 @@ def test_section_attr_get():
     assert Main.API_PORT == 8080
 
 
-def test_section_attr_set():
+def test_section_set_attr_not_allowed():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
@@ -36,7 +36,7 @@ def test_section_attr_set():
         Main.API_HOST = "127.0.0.1"
 
 
-def test_section_attr_del():
+def test_section_del_attr_not_allowed():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
@@ -44,7 +44,7 @@ def test_section_attr_del():
         del Main.API_HOST
 
 
-def test_section_item_get():
+def test_section_get_item():
     class Main(cabina.Section):
         API_HOST = "localhost"
         API_PORT = 8080
@@ -53,7 +53,7 @@ def test_section_item_get():
     assert Main["API_PORT"] == 8080
 
 
-def test_section_item_set():
+def test_section_set_item_not_allowed():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
@@ -61,7 +61,7 @@ def test_section_item_set():
         Main["API_HOST"] = "127.0.0.1"
 
 
-def test_section_item_del():
+def test_section_del_item_not_allowed():
     class Main(cabina.Section):
         API_HOST = "localhost"
 
@@ -69,16 +69,33 @@ def test_section_item_del():
         del Main["API_HOST"]
 
 
-def test_section_len_no_sections():
+def test_section_len_without_options():
     class Main(cabina.Section):
         pass
 
     assert len(Main) == 0
 
 
-def test_section_len_with_sections():
+def test_section_len_with_options():
     class Main(cabina.Section):
         API_HOST = "localhost"
         API_PORT = 8080
 
     assert len(Main) == 2
+
+
+def test_section_iter_without_options():
+    class Main(cabina.Section):
+        pass
+
+    options = [option for option in Main]
+    assert options == []
+
+
+def test_section_iter_with_options():
+    class Main(cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+    options = [option for option in Main]
+    assert options == ["API_HOST", "API_PORT"]

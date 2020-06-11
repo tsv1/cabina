@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Iterator, Tuple
 
 
 def _is_dunder(name: str) -> bool:
@@ -25,24 +25,21 @@ class MetaBase(type):
     def __init__(cls, name: str, bases: Tuple[Any], attrs: Dict[Any, Any]) -> None:
         super().__init__(name, bases, attrs)
 
-        if _is_section(cls):
-            cls.__options__ = {}
-        if _is_config(cls):
-            cls.__sections__ = {}
+        if _is_config(cls) or _is_section(cls):
+            cls.__members__ = {}
 
         for key, val in attrs.items():
             if _is_dunder(key):
                 continue
 
             if _is_config(cls) and _is_section(cls):
-                cls.__sections__[key] = val
-                cls.__options__[key] = val
+                cls.__members__[key] = val
             elif _is_section(cls):
-                cls.__options__[key] = val
+                cls.__members__[key] = val
             elif _is_config(cls):
                 if not inspect.isclass(val) or not issubclass(val, _Section):  # type: ignore
                     raise TypeError(f"isclass {val!r}")
-                cls.__sections__[key] = val
+                cls.__members__[key] = val
             else:  # pragma: no cover
                 pass
 
@@ -70,14 +67,15 @@ class MetaBase(type):
         raise TypeError("__init__")
 
     def __len__(cls) -> int:
-        if _is_section(cls):
-            return len(cls.__options__)
-        return len(cls.__sections__)
+        return len(cls.__members__)
+
+    def __iter__(cls) -> Iterator[Any]:
+        return cls.__members__.__iter__()
 
 
 class Section(metaclass=MetaBase):
     __frozen__ = False
-    __options__: Dict[Any, Any] = {}
+    __members__: Dict[Any, Any] = {}
 
 
 _Section = Section
@@ -85,7 +83,7 @@ _Section = Section
 
 class Config(metaclass=MetaBase):
     __frozen__ = False
-    __sections__:  Dict[Any, Any] = {}
+    __members__:  Dict[Any, Any] = {}
 
 
 _Config = Config

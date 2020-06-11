@@ -1,4 +1,4 @@
-from typing import KeysView, ValuesView
+from typing import ItemsView, KeysView, ValuesView
 
 from pytest import raises
 
@@ -139,3 +139,15 @@ def test_section_values():
 
     assert isinstance(Main.values(), ValuesView)
     assert list(Main.values()) == ["localhost", 8080]
+
+
+def test_section_items():
+    class Main(cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+    assert isinstance(Main.items(), ItemsView)
+    assert list(Main.items()) == [
+        ("API_HOST", "localhost"),
+        ("API_PORT", 8080)
+    ]

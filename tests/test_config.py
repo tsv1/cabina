@@ -1,4 +1,4 @@
-from typing import KeysView, ValuesView
+from typing import ItemsView, KeysView, ValuesView
 
 from pytest import raises
 
@@ -159,3 +159,18 @@ def test_config_values():
 
     assert isinstance(Config.values(), ValuesView)
     assert list(Config.values()) == [Config.First, Config.Second]
+
+
+def test_config_items():
+    class Config(cabina.Config):
+        class First(cabina.Section):
+            pass
+
+        class Second(cabina.Section):
+            pass
+
+    assert isinstance(Config.items(), ItemsView)
+    assert list(Config.items()) == [
+        ("First", Config.First),
+        ("Second", Config.Second)
+    ]

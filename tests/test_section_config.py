@@ -1,4 +1,4 @@
-from typing import KeysView, ValuesView
+from typing import ItemsView, KeysView, ValuesView
 
 import cabina
 
@@ -104,3 +104,19 @@ def test_section_config_values():
 
     assert isinstance(Config.values(), ValuesView)
     assert list(Config.values()) == ["localhost", 8080, Config.Main]
+
+
+def test_section_config_items():
+    class Config(cabina.Config, cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+        class Main(cabina.Section):
+            DEBUG = False
+
+    assert isinstance(Config.items(), ItemsView)
+    assert list(Config.items()) == [
+        ("API_HOST", "localhost"),
+        ("API_PORT", 8080),
+        ("Main", Config.Main)
+    ]

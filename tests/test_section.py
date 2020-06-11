@@ -1,4 +1,4 @@
-from typing import KeysView
+from typing import KeysView, ValuesView
 
 from pytest import raises
 
@@ -116,7 +116,8 @@ def test_section_keys():
         API_HOST = "localhost"
         API_PORT = 8080
 
-    assert Main.keys() == KeysView(["API_HOST", "API_PORT"])
+    assert isinstance(Main.keys(), KeysView)
+    assert list(Main.keys()) == ["API_HOST", "API_PORT"]
 
 
 def test_section_kwargs():
@@ -129,3 +130,12 @@ def test_section_kwargs():
         return host, port
 
     assert connect(**Main) == (Main.host, Main.port)
+
+
+def test_section_values():
+    class Main(cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+    assert isinstance(Main.values(), ValuesView)
+    assert list(Main.values()) == ["localhost", 8080]

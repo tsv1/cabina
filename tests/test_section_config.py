@@ -1,3 +1,5 @@
+from typing import KeysView
+
 import cabina
 
 
@@ -78,3 +80,14 @@ def test_section_config_contains():
     assert "Main" in Config
     assert "DEBUG" not in Config
     assert "DEBUG" in Config.Main
+
+
+def test_section_config_keys():
+    class Config(cabina.Config, cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+        class Main(cabina.Section):
+            DEBUG = False
+
+    assert Config.keys() == KeysView(["API_HOST", "API_PORT", "Main"])

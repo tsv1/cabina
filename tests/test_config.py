@@ -1,3 +1,5 @@
+from typing import KeysView
+
 from pytest import raises
 
 import cabina
@@ -133,3 +135,14 @@ def test_config_contains():
 
     assert "Main" in Config
     assert "banana" not in Config
+
+
+def test_config_keys():
+    class Config(cabina.Config):
+        class First(cabina.Section):
+            pass
+
+        class Second(cabina.Section):
+            pass
+
+    assert Config.keys() == KeysView(["First", "Second"])

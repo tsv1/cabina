@@ -1,3 +1,5 @@
+from typing import KeysView
+
 from pytest import raises
 
 import cabina
@@ -107,3 +109,23 @@ def test_section_contains():
 
     assert "DEBUG" in Main
     assert "banana" not in Main
+
+
+def test_section_keys():
+    class Main(cabina.Section):
+        API_HOST = "localhost"
+        API_PORT = 8080
+
+    assert Main.keys() == KeysView(["API_HOST", "API_PORT"])
+
+
+def test_section_kwargs():
+    class Main(cabina.Section):
+        host = "localhost"
+        port = 8080
+        debug = False
+
+    def connect(host, port, **kwargs):
+        return host, port
+
+    assert connect(**Main) == (Main.host, Main.port)

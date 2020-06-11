@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, Dict, Iterator, Tuple
+from typing import Any, Dict, Iterator, KeysView, Tuple
 
 
 def _is_dunder(name: str) -> bool:
@@ -74,6 +74,9 @@ class MetaBase(type):
 
     def __contains__(cls, item: Any) -> bool:
         return item in cls.__members__
+
+    def keys(cls) -> KeysView[Any]:
+        return cls.__members__.keys()
 
 
 class Section(metaclass=MetaBase):

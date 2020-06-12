@@ -233,3 +233,10 @@ def test_section_config_eq():
 
     assert Config1 == Config1
     assert Config1 != Config2
+
+
+def test_section_config_repr():
+    class Conf(cabina.Config, cabina.Section):
+        pass
+
+    assert repr(Conf) == "<Conf | cabina.Config | cabina.Section>"

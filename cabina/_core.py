@@ -80,6 +80,16 @@ class MetaBase(type):
     def __contains__(cls, item: Any) -> bool:
         return item in cls.__members__
 
+    def __repr__(cls) -> str:
+        if _is_config(cls) and _is_section(cls):
+            return f"<{cls.__name__} | cabina.Config | cabina.Section>"
+        elif _is_config(cls):
+            return f"<{cls.__name__} | cabina.Config>"
+        elif _is_section(cls):
+            return f"<{cls.__name__} | cabina.Section>"
+        else:  # pragma: no cover
+            return f"<{cls.__name__}"
+
     def keys(cls) -> KeysView[str]:
         return cls.__members__.keys()
 

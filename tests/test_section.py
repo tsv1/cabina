@@ -174,3 +174,10 @@ def test_section_eq():
 
     assert Section1 == Section1
     assert Section1 != Section2
+
+
+def test_section_repr():
+    class Main(cabina.Section):
+        pass
+
+    assert repr(Main) == "<Main | cabina.Section>"

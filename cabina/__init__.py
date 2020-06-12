@@ -1,5 +1,8 @@
 from ._core import Config, MetaBase, Section
+from ._environment import Environment
 from ._version import version
 
 __version__ = version
-__all__ = ("Config", "Section", "MetaBase",)
+__all__ = ("env", "Environment", "Config", "Section", "MetaBase",)
+
+env = Environment()

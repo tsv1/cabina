@@ -296,6 +296,17 @@ def test_section_config_repr():
     assert repr(Conf) == "<Conf>"
 
 
+def test_section_config_with_subsections_repr():
+    class Conf(cabina.Config, cabina.Section):
+        class Section(cabina.Section):
+            class SubSection(cabina.Section):
+                pass
+
+    assert repr(Conf.Section.SubSection) == "<Conf.Section.SubSection>"
+    assert repr(Conf.Section) == "<Conf.Section>"
+    assert repr(Conf) == "<Conf>"
+
+
 def test_section_config_unique_keys():
     with raises(Exception) as exc_info:
         class Config1(cabina.Config, cabina.Section):

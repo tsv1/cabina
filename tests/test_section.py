@@ -234,6 +234,15 @@ def test_section_repr():
     assert repr(Main) == "<Main>"
 
 
+def test_section_with_subsections_repr():
+    class Section(cabina.Section):
+        class SubSection(cabina.Section):
+            pass
+
+    assert repr(Section.SubSection) == "<Section.SubSection>"
+    assert repr(Section) == "<Section>"
+
+
 def test_section_unique_keys():
     with raises(Exception) as exc_info:
         class Section(cabina.Section):

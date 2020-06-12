@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, Dict, ItemsView, Iterator, KeysView, Tuple, Union, ValuesView
+from typing import Any, Dict, ItemsView, Iterator, KeysView, Optional, Tuple, Union, ValuesView
 
 from niltype import Nil, NilType
 
@@ -24,6 +24,10 @@ def _is_config(cls: Any) -> bool:
     return _Config is not None and issubclass(cls, _Config)
 
 
+def _is_subclass(cls: Any, cls_type: Any) -> bool:
+    return inspect.isclass(cls) and issubclass(cls, cls_type)
+
+
 class UniqueDict(Dict[str, Any]):
     def __init__(self, namespace: str) -> None:
         super().__init__()
@@ -44,7 +48,7 @@ class MetaBase(type):
         super().__init__(name, bases, attrs)
 
         for base in bases:
-            if base is not _Config and base is not _Section:
+            if (base is not _Config) and (base is not _Section):
                 raise ConfigError(f"Attempted to inherit {base!r}")
 
         if _is_config(cls) or _is_section(cls):
@@ -54,12 +58,16 @@ class MetaBase(type):
             if _is_dunder(key):
                 continue
 
+            if _is_subclass(val, _Section):
+                val.__parent__ = cls
+
             if _is_config(cls) and _is_section(cls):
                 cls.__members__[key] = val
             elif _is_section(cls):
                 cls.__members__[key] = val
             elif _is_config(cls):
-                if not inspect.isclass(val) or not issubclass(val, _Section):  # type: ignore
+                print("_is_config0")
+                if not _is_subclass(val, _Section):
                     raise ConfigError(f"Attempted to add non-Section {key!r} to {cls!r}")
                 cls.__members__[key] = val
             else:  # pragma: no cover
@@ -72,7 +80,7 @@ class MetaBase(type):
         raise ConfigAttrError(f"{name!r} does not exist in {cls!r}")
 
     def __setattr__(cls, name: str, value: Any) -> None:
-        if cls.__frozen__:
+        if cls.__frozen__ and name != "__parent__":
             if name in cls:
                 raise ConfigError(f"Attempted to override {name!r} in {cls!r}")
             raise ConfigError(f"Attempted to add {name!r} to {cls!r} at runtime")
@@ -110,7 +118,12 @@ class MetaBase(type):
         return item in cls.__members__
 
     def __repr__(cls) -> str:
-        return f"<{cls.__name__}>"
+        namespace = [cls.__name__]
+        parent = cls.__parent__
+        while parent is not None:
+            namespace += [parent.__name__]
+            parent = parent.__parent__
+        return "<" + ".".join(reversed(namespace)) + ">"
 
     def keys(cls) -> KeysView[str]:
         return cls.__members__.keys()
@@ -131,7 +144,8 @@ class MetaBase(type):
 
 
 class Section(metaclass=MetaBase):
-    __frozen__ = False
+    __frozen__: bool = False
+    __parent__: Optional[MetaBase] = None
     __members__: Dict[str, Any] = {}
 
 
@@ -139,7 +153,8 @@ _Section = Section
 
 
 class Config(metaclass=MetaBase):
-    __frozen__ = False
+    __frozen__: bool = False
+    __parent__: Optional[MetaBase] = None
     __members__:  Dict[str, Any] = {}
 
 

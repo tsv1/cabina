@@ -18,30 +18,30 @@ def test_config_init_not_allowed():
     class Config(cabina.Config):
         pass
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         Config()
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == f"Attempted to initialize config {Config!r}"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to initialize config {Config!r}"
 
 
 def test_config_options_not_allowed():
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         class Config(cabina.Config):
             DEBUG = False
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == "Attempted to add non-Section 'DEBUG' to <Config>"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == "Attempted to add non-Section 'DEBUG' to <Config>"
 
 
 def test_config_class_options_not_allowed():
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         class Config(cabina.Config):
             class Main:
                 pass
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == "Attempted to add non-Section 'Main' to <Config>"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == "Attempted to add non-Section 'Main' to <Config>"
 
 
 def test_config_get_attr():
@@ -56,11 +56,11 @@ def test_config_get_nonexisting_attr():
     class Config(cabina.Config):
         pass
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         Config.Main
 
-    assert exception.type is ConfigAttrError
-    assert str(exception.value) == f"'Main' does not exist in {Config!r}"
+    assert exc_info.type is ConfigAttrError
+    assert str(exc_info.value) == f"'Main' does not exist in {Config!r}"
 
 
 def test_config_set_attr_not_allowed():
@@ -70,11 +70,26 @@ def test_config_set_attr_not_allowed():
     class Section(cabina.Section):
         pass
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         Config.Main = Section
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+
+
+def test_config_override_attr_not_allowed():
+    class Config(cabina.Config):
+        class Main(cabina.Section):
+            pass
+
+    class Section(cabina.Section):
+        pass
+
+    with raises(Exception) as exc_info:
+        Config.Main = Section
+
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to override 'Main' in {Config!r}"
 
 
 def test_config_del_attr_not_allowed():
@@ -82,11 +97,11 @@ def test_config_del_attr_not_allowed():
         class Main(cabina.Section):
             pass
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         del Config.Main
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == f"Attempted to remove 'Main' from {Config!r}"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to remove 'Main' from {Config!r}"
 
 
 def test_config_get_item():
@@ -101,11 +116,11 @@ def test_config_get_nonexisting_item():
     class Config(cabina.Config):
         pass
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         Config["Main"]
 
-    assert exception.type is ConfigKeyError
-    assert str(exception.value) == f"'Main' does not exist in {Config!r}"
+    assert exc_info.type is ConfigKeyError
+    assert str(exc_info.value) == f"'Main' does not exist in {Config!r}"
 
 
 def test_config_set_item_not_allowed():
@@ -115,11 +130,11 @@ def test_config_set_item_not_allowed():
     class Section(cabina.Section):
         pass
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         Config["Main"] = Section
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
 
 
 def test_config_del_item_not_allowed():
@@ -127,11 +142,11 @@ def test_config_del_item_not_allowed():
         class Main(cabina.Section):
             pass
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         del Config["Main"]
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == f"Attempted to remove 'Main' from {Config!r}"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to remove 'Main' from {Config!r}"
 
 
 def test_config_len_without_sections():
@@ -226,14 +241,13 @@ def test_config_get():
             pass
 
     assert Config.get("Main") == Config.Main
+    assert Config.get("banana", None) is None
 
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         Config.get("banana")
 
-    assert exception.type is ConfigKeyError
-    assert str(exception.value) == f"'banana' does not exist in {Config!r}"
-
-    assert Config.get("banana", None) is None
+    assert exc_info.type is ConfigKeyError
+    assert str(exc_info.value) == f"'banana' does not exist in {Config!r}"
 
 
 def test_config_eq():
@@ -255,7 +269,7 @@ def test_config_repr():
 
 
 def test_config_unique_keys():
-    with raises(Exception) as exception:
+    with raises(Exception) as exc_info:
         class Config(cabina.Config):
             class Main(cabina.Section):
                 pass
@@ -263,5 +277,5 @@ def test_config_unique_keys():
             class Main(cabina.Section):  # noqa: F811
                 pass
 
-    assert exception.type is ConfigError
-    assert str(exception.value) == "Attempted to reuse 'Main' in 'Config'"
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == "Attempted to reuse 'Main' in 'Config'"

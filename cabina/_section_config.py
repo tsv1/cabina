@@ -65,8 +65,6 @@ class MetaBase(type):
             cls.__frozen__ = True
 
     def __getattr__(cls, name: str) -> Any:
-        if name in cls:
-            return super().__getattribute__(name)
         raise ConfigAttrError(f"{name!r} does not exist in {cls!r}")
 
     def __setattr__(cls, name: str, value: Any) -> None:

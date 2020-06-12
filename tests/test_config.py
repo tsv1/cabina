@@ -281,6 +281,16 @@ def test_config_unique_keys():
     assert str(exc_info.value) == "Attempted to reuse 'Main' in 'Config'"
 
 
+def test_config_reserved_keys():
+    with raises(Exception) as exc_info:
+        class Config(cabina.Config):
+            class values(cabina.Section):
+                pass
+
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == "Attempted to use reserved 'values' in 'Config'"
+
+
 def test_config_inheritance():
     class Config(cabina.Config):
         pass

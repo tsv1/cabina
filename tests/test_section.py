@@ -253,6 +253,15 @@ def test_section_unique_keys():
     assert str(exc_info.value) == "Attempted to reuse 'DEBUG' in 'Section'"
 
 
+def test_section_reserved_keys():
+    with raises(Exception) as exc_info:
+        class Section(cabina.Section):
+            items = []
+
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == "Attempted to use reserved 'items' in 'Section'"
+
+
 def test_section_inheritance():
     class Section(cabina.Section):
         pass

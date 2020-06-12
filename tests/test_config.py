@@ -174,3 +174,14 @@ def test_config_items():
         ("First", Config.First),
         ("Second", Config.Second)
     ]
+
+
+def test_config_eq():
+    class Config1(cabina.Config):
+        pass
+
+    class Config2(cabina.Config):
+        pass
+
+    assert Config1 == Config1
+    assert Config1 != Config2

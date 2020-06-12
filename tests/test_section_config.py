@@ -206,3 +206,14 @@ def test_section_config_items():
         ("API_PORT", 8080),
         ("Main", Config.Main)
     ]
+
+
+def test_section_config_eq():
+    class Config1(cabina.Config, cabina.Section):
+        pass
+
+    class Config2(cabina.Config, cabina.Section):
+        pass
+
+    assert Config1 == Config1
+    assert Config1 != Config2

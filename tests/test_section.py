@@ -151,3 +151,14 @@ def test_section_items():
         ("API_HOST", "localhost"),
         ("API_PORT", 8080)
     ]
+
+
+def test_section_eq():
+    class Section1(cabina.Section):
+        pass
+
+    class Section2(cabina.Section):
+        pass
+
+    assert Section1 == Section1
+    assert Section1 != Section2

@@ -3,7 +3,7 @@ from typing import Any, Dict, ItemsView, Iterator, KeysView, Tuple, Union, Value
 
 from niltype import Nil, NilType
 
-from .errors import ConfigError
+from .errors import ConfigAttrError, ConfigError, ConfigKeyError
 
 _Section = None
 _Config = None
@@ -64,6 +64,11 @@ class MetaBase(type):
         if _is_config(cls) or _is_section(cls):
             cls.__frozen__ = True
 
+    def __getattr__(cls, name: str) -> Any:
+        if name in cls:
+            return super().__getattribute__(name)
+        raise ConfigAttrError(f"{name!r} does not exist in {cls!r}")
+
     def __setattr__(cls, name: str, value: Any) -> None:
         if cls.__frozen__:
             if name in cls:
@@ -74,23 +79,24 @@ class MetaBase(type):
     def __delattr__(cls, name: str) -> None:
         raise ConfigError(f"Attempted to remove {name!r} from {cls!r}")
 
-    def __getitem__(cls, item: str) -> Any:
-        # __getattr__
-        try:
-            return getattr(cls, item)
-        except AttributeError:
-            raise KeyError(item)
+    def __getitem__(cls, key: str) -> Any:
+        if key in cls:
+            return getattr(cls, key)
+        raise ConfigKeyError(f"{key!r} does not exist in {cls!r}")
 
     def __setitem__(cls, key: str, value: Any) -> None:
-        # __setattr__
-        raise TypeError(f"__setitem__ {key}")
+        return setattr(cls, key, value)
 
     def __delitem__(cls, key: str) -> None:
-        # __delitem__
-        raise TypeError(f"__delitem__ {key}")
+        return delattr(cls, key)
 
     def __call__(cls, *args: Any, **kwargs: Any) -> None:
-        raise ConfigError(f"Attempted to initialize {cls!r}")
+        if _is_config(cls):
+            raise ConfigError(f"Attempted to initialize config {cls!r}")
+        elif _is_section(cls):
+            raise ConfigError(f"Attempted to initialize section {cls!r}")
+        else:  # pragma: nocover
+            pass
 
     def __len__(cls) -> int:
         return len(cls.__members__)

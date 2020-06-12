@@ -14,4 +14,4 @@ class ConfigAttrError(AttributeError, Error):
 
 
 class ConfigKeyError(KeyError, Error):
-    pass
+    __str__ = AttributeError.__str__  # type: ignore

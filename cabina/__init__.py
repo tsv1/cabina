@@ -1,4 +1,4 @@
-from ._section_config import Config, Section, MetaBase
+from ._section_config import Config, MetaBase, Section
 from ._version import version
 
 __version__ = version

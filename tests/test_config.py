@@ -3,7 +3,7 @@ from typing import ItemsView, KeysView, ValuesView
 from pytest import raises
 
 import cabina
-from cabina.errors import ConfigError
+from cabina.errors import ConfigAttrError, ConfigError, ConfigKeyError
 
 
 def test_config():
@@ -22,7 +22,7 @@ def test_config_init_not_allowed():
         Config()
 
     assert exception.type is ConfigError
-    assert str(exception.value) == f"Attempted to initialize {Config!r}"
+    assert str(exception.value) == f"Attempted to initialize config {Config!r}"
 
 
 def test_config_options_not_allowed():
@@ -53,7 +53,14 @@ def test_config_get_attr():
 
 
 def test_config_get_nonexisting_attr():
-    pass
+    class Config(cabina.Config):
+        pass
+
+    with raises(Exception) as exception:
+        Config.Main
+
+    assert exception.type is ConfigAttrError
+    assert str(exception.value) == f"'Main' does not exist in {Config!r}"
 
 
 def test_config_set_attr_not_allowed():
@@ -91,7 +98,14 @@ def test_config_get_item():
 
 
 def test_config_get_nonexisting_item():
-    pass
+    class Config(cabina.Config):
+        pass
+
+    with raises(Exception) as exception:
+        Config["Main"]
+
+    assert exception.type is ConfigKeyError
+    assert str(exception.value) == f"'Main' does not exist in {Config!r}"
 
 
 def test_config_set_item_not_allowed():
@@ -104,6 +118,9 @@ def test_config_set_item_not_allowed():
     with raises(Exception) as exception:
         Config["Main"] = Section
 
+    assert exception.type is ConfigError
+    assert str(exception.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+
 
 def test_config_del_item_not_allowed():
     class Config(cabina.Config):
@@ -112,6 +129,9 @@ def test_config_del_item_not_allowed():
 
     with raises(Exception) as exception:
         del Config["Main"]
+
+    assert exception.type is ConfigError
+    assert str(exception.value) == f"Attempted to remove 'Main' from {Config!r}"
 
 
 def test_config_len_without_sections():
@@ -209,6 +229,9 @@ def test_config_get():
 
     with raises(Exception) as exception:
         Config.get("banana")
+
+    assert exception.type is ConfigKeyError
+    assert str(exception.value) == f"'banana' does not exist in {Config!r}"
 
     assert Config.get("banana", None) is None
 

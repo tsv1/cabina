@@ -228,10 +228,10 @@ def test_section_eq():
 
 
 def test_section_repr():
-    class Section(cabina.Section):
+    class Main(cabina.Section):
         pass
 
-    assert repr(Section) == "<Section>"
+    assert repr(Main) == "<Main>"
 
 
 def test_section_unique_keys():
@@ -242,3 +242,15 @@ def test_section_unique_keys():
 
     assert exc_info.type is ConfigError
     assert str(exc_info.value) == "Attempted to reuse 'DEBUG' in 'Section'"
+
+
+def test_section_inheritance():
+    class Section(cabina.Section):
+        pass
+
+    with raises(Exception) as exc_info:
+        class AnotherSection(Section):
+            pass
+
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to inherit {Section!r}"

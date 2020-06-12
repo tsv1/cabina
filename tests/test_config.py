@@ -279,3 +279,15 @@ def test_config_unique_keys():
 
     assert exc_info.type is ConfigError
     assert str(exc_info.value) == "Attempted to reuse 'Main' in 'Config'"
+
+
+def test_config_inheritance():
+    class Config(cabina.Config):
+        pass
+
+    with raises(Exception) as exc_info:
+        class AnotherConfig(Config):
+            pass
+
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == f"Attempted to inherit {Config!r}"

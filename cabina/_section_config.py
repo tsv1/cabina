@@ -43,6 +43,10 @@ class MetaBase(type):
     def __init__(cls, name: str, bases: Tuple[Any], attrs: Dict[str, Any]) -> None:
         super().__init__(name, bases, attrs)
 
+        for base in bases:
+            if base is not _Config and base is not _Section:
+                raise ConfigError(f"Attempted to inherit {base!r}")
+
         if _is_config(cls) or _is_section(cls):
             cls.__members__ = {}
 

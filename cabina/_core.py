@@ -1,5 +1,7 @@
 import inspect
-from typing import Any, Dict, ItemsView, Iterator, KeysView, Tuple, ValuesView
+from typing import Any, Dict, ItemsView, Iterator, KeysView, Tuple, Union, ValuesView
+
+from niltype import Nil, NilType
 
 
 def _is_dunder(name: str) -> bool:
@@ -55,7 +57,10 @@ class MetaBase(type):
         raise TypeError(f"__delattr__ {name}")
 
     def __getitem__(cls, item: str) -> Any:
-        return getattr(cls, item)
+        try:
+            return getattr(cls, item)
+        except AttributeError:
+            raise KeyError(item)
 
     def __setitem__(cls, key: str, value: Any) -> None:
         raise TypeError(f"__setitem__ {key}")
@@ -72,7 +77,7 @@ class MetaBase(type):
     def __iter__(cls) -> Iterator[str]:
         return cls.__members__.__iter__()
 
-    def __contains__(cls, item: str) -> bool:
+    def __contains__(cls, item: Any) -> bool:
         return item in cls.__members__
 
     def keys(cls) -> KeysView[str]:
@@ -83,6 +88,14 @@ class MetaBase(type):
 
     def items(cls) -> ItemsView[str, Any]:
         return cls.__members__.items()
+
+    def get(cls, key: str, default: Union[NilType, Any] = Nil) -> Any:
+        try:
+            return cls[key]
+        except KeyError:
+            if default is not Nil:
+                return default
+            raise
 
 
 class Section(metaclass=MetaBase):

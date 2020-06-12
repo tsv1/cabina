@@ -176,6 +176,19 @@ def test_config_items():
     ]
 
 
+def test_config_get():
+    class Config(cabina.Config):
+        class Main(cabina.Section):
+            pass
+
+    assert Config.get("Main") == Config.Main
+
+    with raises(KeyError):
+        Config.get("banana")
+
+    assert Config.get("banana", None) is None
+
+
 def test_config_eq():
     class Config1(cabina.Config):
         pass

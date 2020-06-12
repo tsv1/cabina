@@ -153,6 +153,18 @@ def test_section_items():
     ]
 
 
+def test_config_get():
+    class Main(cabina.Section):
+        API_HOST = "localhost"
+
+    assert Main.get("API_HOST") == Main.API_HOST
+
+    with raises(KeyError):
+        Main.get("banana")
+
+    assert Main.get("banana", None) is None
+
+
 def test_section_eq():
     class Section1(cabina.Section):
         pass

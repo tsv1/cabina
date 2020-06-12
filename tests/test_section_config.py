@@ -208,6 +208,22 @@ def test_section_config_items():
     ]
 
 
+def test_section_config_get():
+    class Config(cabina.Config, cabina.Section):
+        API_HOST = "localhost"
+
+        class Main(cabina.Section):
+            pass
+
+    assert Config.get("Main") == Config.Main
+    assert Config.get("API_HOST") == Config.API_HOST
+
+    with raises(KeyError):
+        Config.get("banana")
+
+    assert Config.get("banana", None) is None
+
+
 def test_section_config_eq():
     class Config1(cabina.Config, cabina.Section):
         pass

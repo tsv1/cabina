@@ -79,12 +79,12 @@ def test_section_del_attr_not_allowed():
 
 
 def test_section_get_item():
-    class Main(cabina.Section):
+    class Section(cabina.Section):
         API_HOST = "localhost"
         API_PORT = 8080
 
-    assert Main["API_HOST"] == "localhost"
-    assert Main["API_PORT"] == 8080
+    assert Section["API_HOST"] == "localhost"
+    assert Section["API_PORT"] == 8080
 
 
 def test_section_get_nonexisting_item():

@@ -14,4 +14,5 @@ class ConfigAttrError(AttributeError, Error):
 
 
 class ConfigKeyError(KeyError, Error):
-    __str__ = AttributeError.__str__  # type: ignore
+    def __str__(self) -> str:
+        return AttributeError.__str__(self)

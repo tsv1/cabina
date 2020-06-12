@@ -23,10 +23,10 @@ class Config(cabina.Config):
         API_PORT: int = 8080
 
     class Db(cabina.Section):
-        host: str = "localhost"
-        port: int = 5432
-        username: str = "postgres"
-        password: str = ""
+        HOST: str = "localhost"
+        PORT: int = 5432
+        USERNAME: str = "postgres"
+        PASSWORD: str = ""
 ```
 
 ```python

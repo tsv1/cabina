@@ -3,6 +3,7 @@ from typing import ItemsView, KeysView, ValuesView
 from pytest import raises
 
 import cabina
+from cabina.errors import ConfigError
 
 
 def test_config():
@@ -17,21 +18,30 @@ def test_config_init_not_allowed():
     class Config(cabina.Config):
         pass
 
-    with raises(TypeError):
+    with raises(Exception) as exception:
         Config()
+
+    assert exception.type is ConfigError
+    assert str(exception.value) == f"Attempted to initialize {Config!r}"
 
 
 def test_config_options_not_allowed():
-    with raises(TypeError):
+    with raises(Exception) as exception:
         class Config(cabina.Config):
             DEBUG = False
 
+    assert exception.type is ConfigError
+    assert str(exception.value) == "Attempted to add non-Section 'DEBUG' to <Config>"
+
 
 def test_config_class_options_not_allowed():
-    with raises(TypeError):
+    with raises(Exception) as exception:
         class Config(cabina.Config):
             class Main:
                 pass
+
+    assert exception.type is ConfigError
+    assert str(exception.value) == "Attempted to add non-Section 'Main' to <Config>"
 
 
 def test_config_get_attr():
@@ -42,6 +52,10 @@ def test_config_get_attr():
     assert Config.Main == Config.Main
 
 
+def test_config_get_nonexisting_attr():
+    pass
+
+
 def test_config_set_attr_not_allowed():
     class Config(cabina.Config):
         pass
@@ -49,8 +63,11 @@ def test_config_set_attr_not_allowed():
     class Section(cabina.Section):
         pass
 
-    with raises(TypeError):
+    with raises(Exception) as exception:
         Config.Main = Section
+
+    assert exception.type is ConfigError
+    assert str(exception.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
 
 
 def test_config_del_attr_not_allowed():
@@ -58,8 +75,11 @@ def test_config_del_attr_not_allowed():
         class Main(cabina.Section):
             pass
 
-    with raises(TypeError):
+    with raises(Exception) as exception:
         del Config.Main
+
+    assert exception.type is ConfigError
+    assert str(exception.value) == f"Attempted to remove 'Main' from {Config!r}"
 
 
 def test_config_get_item():
@@ -70,6 +90,10 @@ def test_config_get_item():
     assert Config["Main"] == Config.Main
 
 
+def test_config_get_nonexisting_item():
+    pass
+
+
 def test_config_set_item_not_allowed():
     class Config(cabina.Config):
         pass
@@ -77,7 +101,7 @@ def test_config_set_item_not_allowed():
     class Section(cabina.Section):
         pass
 
-    with raises(TypeError):
+    with raises(Exception) as exception:
         Config["Main"] = Section
 
 
@@ -86,7 +110,7 @@ def test_config_del_item_not_allowed():
         class Main(cabina.Section):
             pass
 
-    with raises(TypeError):
+    with raises(Exception) as exception:
         del Config["Main"]
 
 
@@ -183,7 +207,7 @@ def test_config_get():
 
     assert Config.get("Main") == Config.Main
 
-    with raises(KeyError):
+    with raises(Exception) as exception:
         Config.get("banana")
 
     assert Config.get("banana", None) is None
@@ -204,4 +228,17 @@ def test_config_repr():
     class Conf(cabina.Config):
         pass
 
-    assert repr(Conf) == "<Conf | cabina.Config>"
+    assert repr(Conf) == "<Conf>"
+
+
+def test_config_unique_keys():
+    with raises(Exception) as exception:
+        class Config(cabina.Config):
+            class Main(cabina.Section):
+                pass
+
+            class Main(cabina.Section):  # noqa: F811
+                pass
+
+    assert exception.type is ConfigError
+    assert str(exception.value) == "Attempted to reuse 'Main' in 'Config'"

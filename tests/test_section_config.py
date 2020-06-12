@@ -239,4 +239,19 @@ def test_section_config_repr():
     class Conf(cabina.Config, cabina.Section):
         pass
 
-    assert repr(Conf) == "<Conf | cabina.Config | cabina.Section>"
+    assert repr(Conf) == "<Conf>"
+
+
+def test_section_config_unique_keys():
+    with raises(TypeError):
+        class Config1(cabina.Config, cabina.Section):
+            class Main(cabina.Section):
+                pass
+
+            class Main(cabina.Section):  # noqa: F811
+                pass
+
+    with raises(TypeError):
+        class Config2(cabina.Config, cabina.Section):
+            DEBUG = True
+            DEBUG = False

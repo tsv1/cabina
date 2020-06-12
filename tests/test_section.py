@@ -180,4 +180,11 @@ def test_section_repr():
     class Main(cabina.Section):
         pass
 
-    assert repr(Main) == "<Main | cabina.Section>"
+    assert repr(Main) == "<Main>"
+
+
+def test_section_unique_keys():
+    with raises(TypeError):
+        class Main(cabina.Section):
+            DEBUG = True
+            DEBUG = False

@@ -3,16 +3,17 @@ from typing import Any, Dict, ItemsView, Iterator, KeysView, Tuple, Union, Value
 
 from niltype import Nil, NilType
 
+from .errors import ConfigError
+
+_Section = None
+_Config = None
+
 
 def _is_dunder(name: str) -> bool:
     return (name[:2] == name[-2:] == '__' and
             name[2:3] != '_' and
             name[-3:-2] != '_' and
             len(name) > 4)
-
-
-_Section = None
-_Config = None
 
 
 def _is_section(cls: Any) -> bool:
@@ -23,7 +24,22 @@ def _is_config(cls: Any) -> bool:
     return _Config is not None and issubclass(cls, _Config)
 
 
+class UniqueDict(Dict[str, Any]):
+    def __init__(self, namespace: str) -> None:
+        super().__init__()
+        self.__namespace = namespace
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        if not _is_dunder(key) and key in self:
+            raise ConfigError(f"Attempted to reuse {key!r} in {self.__namespace!r}")
+        super().__setitem__(key, value)
+
+
 class MetaBase(type):
+    @classmethod
+    def __prepare__(mcs, name: str, bases: Tuple[Any]) -> UniqueDict:  # type: ignore
+        return UniqueDict(name)
+
     def __init__(cls, name: str, bases: Tuple[Any], attrs: Dict[str, Any]) -> None:
         super().__init__(name, bases, attrs)
 
@@ -40,7 +56,7 @@ class MetaBase(type):
                 cls.__members__[key] = val
             elif _is_config(cls):
                 if not inspect.isclass(val) or not issubclass(val, _Section):  # type: ignore
-                    raise TypeError(f"isclass {val!r}")
+                    raise ConfigError(f"Attempted to add non-Section {key!r} to {cls!r}")
                 cls.__members__[key] = val
             else:  # pragma: no cover
                 pass
@@ -50,26 +66,31 @@ class MetaBase(type):
 
     def __setattr__(cls, name: str, value: Any) -> None:
         if cls.__frozen__:
-            raise TypeError(f"__setattr__ {name}")
+            if name in cls:
+                raise ConfigError(f"Attempted to override {name!r} in {cls!r}")
+            raise ConfigError(f"Attempted to add {name!r} to {cls!r} at runtime")
         super().__setattr__(name, value)
 
     def __delattr__(cls, name: str) -> None:
-        raise TypeError(f"__delattr__ {name}")
+        raise ConfigError(f"Attempted to remove {name!r} from {cls!r}")
 
     def __getitem__(cls, item: str) -> Any:
+        # __getattr__
         try:
             return getattr(cls, item)
         except AttributeError:
             raise KeyError(item)
 
     def __setitem__(cls, key: str, value: Any) -> None:
+        # __setattr__
         raise TypeError(f"__setitem__ {key}")
 
     def __delitem__(cls, key: str) -> None:
+        # __delitem__
         raise TypeError(f"__delitem__ {key}")
 
     def __call__(cls, *args: Any, **kwargs: Any) -> None:
-        raise TypeError("__init__")
+        raise ConfigError(f"Attempted to initialize {cls!r}")
 
     def __len__(cls) -> int:
         return len(cls.__members__)
@@ -81,14 +102,7 @@ class MetaBase(type):
         return item in cls.__members__
 
     def __repr__(cls) -> str:
-        if _is_config(cls) and _is_section(cls):
-            return f"<{cls.__name__} | cabina.Config | cabina.Section>"
-        elif _is_config(cls):
-            return f"<{cls.__name__} | cabina.Config>"
-        elif _is_section(cls):
-            return f"<{cls.__name__} | cabina.Section>"
-        else:  # pragma: no cover
-            return f"<{cls.__name__}"
+        return f"<{cls.__name__}>"
 
     def keys(cls) -> KeysView[str]:
         return cls.__members__.keys()

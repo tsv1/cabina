@@ -1,9 +1,29 @@
+from pytest import raises
+
 from cabina import Environment
+from cabina._environment import EnvKeyError
 
 
 def test_env():
     env = Environment({"<key>": "banana"})
     assert env("<key>") == "banana"
+
+
+def test_env_nonexisting_key():
+    env = Environment({})
+
+    with raises(EnvKeyError) as exc_info:
+        env("<key>")
+
+    assert exc_info.type is EnvKeyError
+    assert str(exc_info.value) == f"'<key>'"
+
+
+def test_env_default_value():
+    env = Environment({})
+
+    assert env("<key>", None) is None
+    assert env("<key>", "default") == "default"
 
 
 def test_env_none():

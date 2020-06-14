@@ -15,12 +15,17 @@ pip3 install cabina
 
 ```python
 import cabina
+from cabina import computed
 
 
 class Config(cabina.Config):
     class Main(cabina.Section):
         API_HOST: str = "localhost"
         API_PORT: int = 8080
+
+        @computed
+        def API_URL(cls) -> str:
+            return f"http://{cls.API_HOST}:{cls.API_PORT}"
 
     class Db(cabina.Section):
         HOST: str = "localhost"
@@ -30,6 +35,6 @@ class Config(cabina.Config):
 ```
 
 ```python
-assert Config.Main.API_HOST == "localhost"
-assert Config["Main"]["API_HOST"] == "localhost"
+assert Config.Main.API_URL == "http://localhost:8080"
+assert Config["Main"]["API_URL"] == "http://localhost:8080"
 ```

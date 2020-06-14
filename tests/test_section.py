@@ -3,6 +3,7 @@ from typing import ItemsView, KeysView, ValuesView
 from pytest import raises
 
 import cabina
+from cabina import computed
 from cabina.errors import ConfigAttrError, ConfigError, ConfigKeyError
 
 
@@ -272,3 +273,15 @@ def test_section_inheritance():
 
     assert exc_info.type is ConfigError
     assert str(exc_info.value) == f"Attempted to inherit {Section!r}"
+
+
+def test_section_computed():
+    class Section(cabina.Section):
+        HOST = "localhost"
+        PORT = 8080
+
+        @computed
+        def URL(cls):
+            return f"http://{cls.HOST}:{cls.PORT}"
+
+    assert Section.URL == "http://localhost:8080"

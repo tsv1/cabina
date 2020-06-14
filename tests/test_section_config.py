@@ -3,6 +3,7 @@ from typing import ItemsView, KeysView, ValuesView
 from pytest import raises
 
 import cabina
+from cabina import computed
 from cabina.errors import ConfigAttrError, ConfigError, ConfigKeyError
 
 
@@ -343,3 +344,15 @@ def test_config_section_reserved_keys():
 
     assert exc_info.type is ConfigError
     assert str(exc_info.value) == "Attempted to use reserved 'keys' in 'Config2'"
+
+
+def test_config_section_computed():
+    class Config(cabina.Config, cabina.Section):
+        HOST = "localhost"
+        PORT = 8080
+
+        @computed
+        def URL(cls):
+            return f"http://{cls.HOST}:{cls.PORT}"
+
+    assert Config.URL == "http://localhost:8080"

@@ -27,7 +27,7 @@ class Environment:
         except KeyError:
             if default is not Nil:
                 return default
-            raise EnvKeyError(name)
+            raise EnvKeyError(f"{name!r} does not exist") from None
         else:
             return parser(value)
 

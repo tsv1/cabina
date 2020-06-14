@@ -16,7 +16,7 @@ class ConfigAttrError(AttributeError, ConfigError):
 
 class ConfigKeyError(KeyError, ConfigError):
     def __str__(self) -> str:
-        return AttributeError.__str__(self)
+        return ConfigError.__str__(self)
 
 
 class EnvError(Error):
@@ -24,7 +24,8 @@ class EnvError(Error):
 
 
 class EnvKeyError(KeyError, EnvError):
-    pass
+    def __str__(self) -> str:
+        return EnvError.__str__(self)
 
 
 class EnvParseError(TypeError, EnvError):

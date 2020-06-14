@@ -30,15 +30,15 @@ def parse_int(value: str, *, base: int = 10) -> int:
         return int(value, base)
     except ValueError:
         if base == 10:
-            raise EnvParseError(f"Failed to parse {value!r} as int")
-        raise EnvParseError(f"Failed to parse {value!r} as int with base {base}")
+            raise EnvParseError(f"Failed to parse {value!r} as int") from None
+        raise EnvParseError(f"Failed to parse {value!r} as int with base {base}") from None
 
 
 def parse_float(value: str) -> float:
     try:
         return float(value)
     except ValueError:
-        raise EnvParseError(f"Failed to parse {value!r} as float")
+        raise EnvParseError(f"Failed to parse {value!r} as float") from None
 
 
 def parse_str(value: str, *,
@@ -56,4 +56,4 @@ def parse_tuple(value: str, *, separator: str = ",",
     try:
         return tuple(subparser(x) for x in parsed)
     except EnvParseError as e:
-        raise EnvParseError(f"Failed to parse {value!r} as tuple: {e}")
+        raise EnvParseError(f"Failed to parse {value!r} as tuple: {e}") from None

@@ -1,7 +1,7 @@
 from pytest import raises
 
 from cabina import Environment
-from cabina._environment import EnvKeyError
+from cabina.errors import EnvKeyError
 
 
 def test_env():

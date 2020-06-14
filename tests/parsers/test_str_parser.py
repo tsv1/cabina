@@ -1,7 +1,8 @@
 import pytest
 from pytest import raises
 
-from cabina.parsers import ParseError, parse_str
+from cabina.errors import EnvParseError
+from cabina.parsers import parse_str
 
 
 @pytest.mark.parametrize("value", [
@@ -19,5 +20,5 @@ def test_parse_empty_str():
     with raises(Exception) as exc_info:
         parse_str("")
 
-    assert exc_info.type is ParseError
+    assert exc_info.type is EnvParseError
     assert str(exc_info.value) == f"Failed to parse '' as non-empty str"

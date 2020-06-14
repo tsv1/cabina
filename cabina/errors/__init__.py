@@ -1,4 +1,5 @@
-__all__ = ("Error", "ConfigError", "ConfigAttrError", "ConfigKeyError",)
+__all__ = ("ConfigError", "ConfigAttrError", "ConfigKeyError",
+           "EnvError", "EnvKeyError", "EnvParseError", "Error",)
 
 
 class Error(Exception):
@@ -9,10 +10,22 @@ class ConfigError(TypeError, Error):
     pass
 
 
-class ConfigAttrError(AttributeError, Error):
+class ConfigAttrError(AttributeError, ConfigError):
     pass
 
 
-class ConfigKeyError(KeyError, Error):
+class ConfigKeyError(KeyError, ConfigError):
     def __str__(self) -> str:
         return AttributeError.__str__(self)
+
+
+class EnvError(Error):
+    pass
+
+
+class EnvKeyError(KeyError, EnvError):
+    pass
+
+
+class EnvParseError(TypeError, EnvError):
+    pass

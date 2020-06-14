@@ -1,7 +1,8 @@
 import pytest
 from pytest import raises
 
-from cabina.parsers import ParseError, parse_int, parse_tuple
+from cabina.errors import EnvParseError
+from cabina.parsers import parse_int, parse_tuple
 
 
 @pytest.mark.parametrize(("value", "expected"), [
@@ -32,7 +33,7 @@ def test_parse_empty_tuple():
     with raises(Exception) as exc_info:
         parse_tuple("")
 
-    assert exc_info.type is ParseError
+    assert exc_info.type is EnvParseError
     assert str(exc_info.value) == ("Failed to parse '' as tuple: "
                                    "Failed to parse '' as non-empty str")
 
@@ -41,6 +42,6 @@ def test_parse_invalid_tuple():
     with raises(Exception) as exc_info:
         parse_tuple("banana,")
 
-    assert exc_info.type is ParseError
+    assert exc_info.type is EnvParseError
     assert str(exc_info.value) == ("Failed to parse 'banana,' as tuple: "
                                    "Failed to parse '' as non-empty str")

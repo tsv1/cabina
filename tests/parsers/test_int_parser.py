@@ -3,7 +3,8 @@ import sys
 import pytest
 from pytest import raises
 
-from cabina.parsers import ParseError, parse_int
+from cabina.errors import EnvParseError
+from cabina.parsers import parse_int
 
 
 @pytest.mark.parametrize(("value", "expected"), [
@@ -38,7 +39,7 @@ def test_parse_invalid_int(value):
     with raises(Exception) as exc_info:
         parse_int(value)
 
-    assert exc_info.type is ParseError
+    assert exc_info.type is EnvParseError
     assert str(exc_info.value) == f"Failed to parse {value!r} as int"
 
 
@@ -52,5 +53,5 @@ def test_parse_int_with_invalid_base(value, base):
     with raises(Exception) as exc_info:
         parse_int(value, base=base)
 
-    assert exc_info.type is ParseError
+    assert exc_info.type is EnvParseError
     assert str(exc_info.value) == f"Failed to parse {value!r} as int with base {base}"

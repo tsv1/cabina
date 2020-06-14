@@ -4,6 +4,7 @@ from typing import Any, Mapping, Tuple, Union, cast
 
 from niltype import Nil, NilType
 
+from .errors import EnvKeyError
 from .parsers import (
     parse_as_is,
     parse_bool,
@@ -13,10 +14,6 @@ from .parsers import (
     parse_str,
     parse_tuple,
 )
-
-
-class EnvKeyError(KeyError):
-    pass
 
 
 class Environment:

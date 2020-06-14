@@ -4,7 +4,8 @@ from math import isnan
 import pytest
 from pytest import raises
 
-from cabina.parsers import ParseError, parse_float
+from cabina.errors import EnvParseError
+from cabina.parsers import parse_float
 
 
 @pytest.mark.parametrize(("value", "expected"), [
@@ -48,5 +49,5 @@ def test_parse_invalid_float(value):
     with raises(Exception) as exc_info:
         parse_float(value)
 
-    assert exc_info.type is ParseError
+    assert exc_info.type is EnvParseError
     assert str(exc_info.value) == f"Failed to parse {value!r} as float"

@@ -1,7 +1,8 @@
 import pytest
 from pytest import raises
 
-from cabina.parsers import ParseError, parse_bool
+from cabina.errors import EnvParseError
+from cabina.parsers import parse_bool
 
 
 @pytest.mark.parametrize("value", [
@@ -37,5 +38,5 @@ def test_parse_invalid_bool(value):
     with raises(Exception) as exc_info:
         parse_bool(value)
 
-    assert exc_info.type is ParseError
+    assert exc_info.type is EnvParseError
     assert str(exc_info.value) == f"Failed to parse {value!r} as bool"

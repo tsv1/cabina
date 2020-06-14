@@ -44,6 +44,12 @@ def test_import_env():
     from cabina import env
 
 
+def test_import_envoronment_key_error():
+    from cabina.errors import EnvKeyError
+    with raises(ImportError):
+        from cabina import EnvKeyError
+
+
 def test_import_parser_parse_as_is():
     from cabina.parsers import parse_as_is
     with raises(ImportError):
@@ -84,3 +90,9 @@ def test_import_parser_parse_tuple():
     from cabina.parsers import parse_tuple
     with raises(ImportError):
         from cabina import parse_tuple
+
+
+def test_import_parse_error():
+    from cabina.errors import EnvParseError
+    with raises(ImportError):
+        from cabina import EnvParseError

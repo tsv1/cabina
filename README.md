@@ -15,23 +15,21 @@ pip3 install cabina
 
 ```python
 import cabina
-from cabina import computed
+from cabina import computed, env
 
 
 class Config(cabina.Config):
     class Main(cabina.Section):
-        API_HOST: str = "localhost"
-        API_PORT: int = 8080
+        API_HOST: str = env.str("API_HOST", default="localhost")
+        API_PORT: int = env.int("API_PORT", default=8080)
 
         @computed
         def API_URL(cls) -> str:
             return f"http://{cls.API_HOST}:{cls.API_PORT}"
 
-    class Db(cabina.Section):
-        HOST: str = "localhost"
-        PORT: int = 5432
-        USERNAME: str = "postgres"
-        PASSWORD: str = ""
+    class Kafka(cabina.Section):
+        BOOTSTRAP_SERVERS: tuple = env.tuple("KAFKA_BOOTSTRAP_SERVERS")
+        AUTO_COMMIT: bool = env.bool("KAFKA_AUTO_COMMIT", True)
 ```
 
 ```python

@@ -8,7 +8,7 @@ def _required(*args: Any) -> Any:
 
 
 class computed:
-    def __init__(self, fn: Callable[[MetaBase], Any] = _required) -> None:
+    def __init__(self, fn: Callable[[Any], Any] = _required) -> None:
         if fn is _required:
             raise TypeError("Use @computed instead of @computed()")
         self._fn = fn

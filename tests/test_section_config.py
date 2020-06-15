@@ -332,11 +332,11 @@ def test_section_config_unique_keys():
 def test_config_section_reserved_keys():
     with raises(Exception) as exc_info:
         class Config1(cabina.Config, cabina.Section):
-            class get(cabina.Section):
+            class items(cabina.Section):
                 pass
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == "Attempted to use reserved 'get' in 'Config1'"
+    assert str(exc_info.value) == "Attempted to use reserved 'items' in 'Config1'"
 
     with raises(Exception) as exc_info:
         class Config2(cabina.Config, cabina.Section):

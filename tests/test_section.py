@@ -255,12 +255,14 @@ def test_section_unique_keys():
 
 
 def test_section_reserved_keys():
-    with raises(Exception) as exc_info:
-        class Section(cabina.Section):
-            items = []
+    reserved_keys = [key for key in dir(cabina.Config.__class__) if not key.startswith("__")]
 
-    assert exc_info.type is ConfigError
-    assert str(exc_info.value) == "Attempted to use reserved 'items' in 'Section'"
+    for reserved_key in reserved_keys:
+        with raises(Exception) as exc_info:
+            type("Section", (cabina.Section,), {reserved_key: None})
+
+        assert exc_info.type is ConfigError
+        assert str(exc_info.value) == f"Attempted to use reserved {reserved_key!r} in 'Section'"
 
 
 def test_section_inheritance():

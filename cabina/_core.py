@@ -34,12 +34,8 @@ class UniqueDict(Dict[str, Any]):
         self.__namespace = namespace
 
     def __setitem__(self, key: str, value: Any) -> None:
-        if key in ("keys", "values", "items", "get"):
-            raise ConfigError(f"Attempted to use reserved {key!r} in {self.__namespace!r}")
-
         if not _is_dunder(key) and key in self:
             raise ConfigError(f"Attempted to reuse {key!r} in {self.__namespace!r}")
-
         super().__setitem__(key, value)
 
 
@@ -58,9 +54,13 @@ class MetaBase(type):
         if _is_config(cls) or _is_section(cls):
             cls.__members__ = {}
 
+        reserved = set(dir(cls.__class__))
         for key, val in attrs.items():
             if _is_dunder(key):
                 continue
+
+            if key in reserved:
+                raise ConfigError(f"Attempted to use reserved {key!r} in {name!r}")
 
             if _is_subclass(val, _Section):
                 val.__parent__ = cls

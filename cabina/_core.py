@@ -3,6 +3,7 @@ from typing import Any, Dict, ItemsView, Iterator, KeysView, Optional, Tuple, Un
 
 from niltype import Nil, NilType
 
+from ._future_value import FutureValue
 from .errors import ConfigAttrError, ConfigError, ConfigKeyError
 
 _Section = None
@@ -79,6 +80,12 @@ class MetaBase(type):
         if _is_config(cls) or _is_section(cls):
             cls.__frozen__ = True
 
+    def __getattribute__(cls, name: str) -> Any:
+        attr = super().__getattribute__(name)
+        if isinstance(attr, FutureValue):
+            return attr.get()
+        return attr
+
     def __getattr__(cls, name: str) -> Any:
         raise ConfigAttrError(f"{name!r} does not exist in {cls!r}")
 
@@ -132,10 +139,10 @@ class MetaBase(type):
         return cls.__members__.keys()
 
     def values(cls) -> ValuesView[Any]:
-        return cls.__members__.values()
+        return {key: getattr(cls, key) for key in cls.__members__}.values()
 
     def items(cls) -> ItemsView[str, Any]:
-        return cls.__members__.items()
+        return {key: getattr(cls, key) for key in cls.__members__}.items()
 
     def get(cls, key: str, default: Union[NilType, Any] = Nil) -> Any:
         try:

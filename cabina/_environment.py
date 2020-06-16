@@ -1,9 +1,10 @@
 import os
 from functools import partial
-from typing import Any, Mapping, Tuple, Union, cast
+from typing import Callable, Mapping, Tuple, Union, cast
 
 from niltype import Nil, NilType
 
+from ._future_value import FutureValue, ValueType
 from .errors import EnvKeyError
 from .parsers import (
     parse_as_is,
@@ -20,28 +21,36 @@ class Environment:
     def __init__(self, environ: Mapping[str, str] = os.environ) -> None:
         self._environ = environ
 
-    def __call__(self, name: str, default: Union[NilType, Any] = Nil,
-                 parser: Any = parse_as_is) -> Any:
+    def get(self, name: str, default: Union[NilType, ValueType] = Nil,
+            parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
         try:
             value = self._environ[name]
         except KeyError:
-            if default is not Nil:
-                return default
-            raise EnvKeyError(f"{name!r} does not exist") from None
+            if default is Nil:
+                raise EnvKeyError(f"{name!r} does not exist") from None
+            return default
         else:
             return parser(value)
 
+    def raw(self, name: str, default: Union[NilType, ValueType] = Nil,
+            parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
+        return cast(ValueType, FutureValue[ValueType](self.get, name, default, parser))
+
+    def __call__(self, name: str, default: Union[NilType, ValueType] = Nil,
+                 parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
+        return self.raw(name, default, parser)
+
     def none(self, name: str, default: Union[NilType, None] = Nil) -> None:
-        return cast(None, self(name, default, parse_none))
+        return self(name, default, parse_none)
 
     def bool(self, name: str, default: Union[NilType, bool] = Nil) -> bool:
-        return cast(bool, self(name, default, parse_bool))
+        return self(name, default, parse_bool)
 
     def int(self, name: str, default: Union[NilType, int] = Nil) -> int:
-        return cast(int, self(name, default, parse_int))
+        return self(name, default, parse_int)
 
     def float(self, name: str, default: Union[NilType, float] = Nil) -> float:
-        return cast(float, self(name, default, parse_float))
+        return self(name, default, parse_float)
 
     def tuple(self, name: str, default: Union[NilType, str] = Nil, *,
               separator: str = ",") -> Tuple[str, ...]:
@@ -49,4 +58,4 @@ class Environment:
         return cast(Tuple[str, ...], self(name, default, parser))
 
     def str(self, name: str, default: Union[NilType, str] = Nil) -> str:
-        return cast(str, self(name, default, parse_str))
+        return self.raw(name, default, parse_str)

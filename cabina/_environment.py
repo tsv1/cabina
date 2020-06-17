@@ -18,14 +18,17 @@ from .parsers import (
 
 
 class Environment:
-    def __init__(self, environ: Mapping[str, str] = os.environ) -> None:
+    def __init__(self, environ: Mapping[str, str] = os.environ, *, prefix: str = "") -> None:
         self._environ = environ
+        self._prefix = prefix
 
     def __repr__(self) -> str:
         return f"cabina.Environment({self._environ!r})"
 
     def get(self, name: str, default: Union[NilType, ValueType] = Nil,
             parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
+        if self._prefix:
+            name = self._prefix + name
         try:
             value = self._environ[name]
         except KeyError:

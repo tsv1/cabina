@@ -194,3 +194,9 @@ def test_env_repr():
 
     env = Environment({"<key>": "banana"})
     assert repr(env) == "cabina.Environment({'<key>': 'banana'})"
+
+
+def test_env_prefix():
+    env = Environment({"APP_NAME": "banana"}, prefix="APP_")
+    assert env("NAME").get() == "banana"
+    assert env.get("NAME") == "banana"

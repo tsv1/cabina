@@ -9,4 +9,4 @@ __all__ = ("Config", "Section", "computed",
            "env", "Environment", "FutureValue",
            "MetaBase",)
 
-env = Environment()
+env: Environment = Environment()

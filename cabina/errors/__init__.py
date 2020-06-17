@@ -1,5 +1,6 @@
 __all__ = ("ConfigError", "ConfigAttrError", "ConfigKeyError",
-           "EnvError", "EnvKeyError", "EnvParseError", "Error",)
+           "EnvError", "EnvKeyError", "EnvParseError", "ConfigEnvError",
+           "Error",)
 
 
 class Error(Exception):
@@ -29,4 +30,8 @@ class EnvKeyError(KeyError, EnvError):
 
 
 class EnvParseError(TypeError, EnvError):
+    pass
+
+
+class ConfigEnvError(ValueError, EnvError, ConfigError):
     pass

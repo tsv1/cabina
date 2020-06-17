@@ -1,9 +1,28 @@
 import inspect
-from typing import Any, Dict, ItemsView, Iterator, KeysView, Optional, Tuple, Union, ValuesView
+from typing import (
+    Any,
+    Dict,
+    ItemsView,
+    Iterator,
+    KeysView,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    ValuesView,
+)
 
 from niltype import Nil, NilType
 
-from .errors import ConfigAttrError, ConfigError, ConfigKeyError
+from ._future_value import FutureValue
+from .errors import (
+    ConfigAttrError,
+    ConfigEnvError,
+    ConfigError,
+    ConfigKeyError,
+    EnvKeyError,
+    EnvParseError,
+)
 
 _Section = None
 _Config = None
@@ -34,12 +53,8 @@ class UniqueDict(Dict[str, Any]):
         self.__namespace = namespace
 
     def __setitem__(self, key: str, value: Any) -> None:
-        if key in ("keys", "values", "items", "get"):
-            raise ConfigError(f"Attempted to use reserved {key!r} in {self.__namespace!r}")
-
         if not _is_dunder(key) and key in self:
             raise ConfigError(f"Attempted to reuse {key!r} in {self.__namespace!r}")
-
         super().__setitem__(key, value)
 
 
@@ -58,9 +73,13 @@ class MetaBase(type):
         if _is_config(cls) or _is_section(cls):
             cls.__members__ = {}
 
+        reserved = set(dir(cls.__class__))
         for key, val in attrs.items():
             if _is_dunder(key):
                 continue
+
+            if key in reserved:
+                raise ConfigError(f"Attempted to use reserved {key!r} in {name!r}")
 
             if _is_subclass(val, _Section):
                 val.__parent__ = cls
@@ -78,6 +97,12 @@ class MetaBase(type):
 
         if _is_config(cls) or _is_section(cls):
             cls.__frozen__ = True
+
+    def __getattribute__(cls, name: str) -> Any:
+        attr = super().__getattribute__(name)
+        if isinstance(attr, FutureValue):
+            return attr.get()
+        return attr
 
     def __getattr__(cls, name: str) -> Any:
         raise ConfigAttrError(f"{name!r} does not exist in {cls!r}")
@@ -132,10 +157,10 @@ class MetaBase(type):
         return cls.__members__.keys()
 
     def values(cls) -> ValuesView[Any]:
-        return cls.__members__.values()
+        return {key: getattr(cls, key) for key in cls.__members__}.values()
 
     def items(cls) -> ItemsView[str, Any]:
-        return cls.__members__.items()
+        return {key: getattr(cls, key) for key in cls.__members__}.items()
 
     def get(cls, key: str, default: Union[NilType, Any] = Nil) -> Any:
         try:
@@ -144,6 +169,27 @@ class MetaBase(type):
             if default is not Nil:
                 return default
             raise
+
+    def __prefetch(cls) -> List[str]:
+        errors: List[str] = []
+        for key in cls.__members__:
+            try:
+                val = getattr(cls, key)
+            except (EnvKeyError, EnvParseError) as e:
+                namespace = repr(cls)[1:-1]
+                message = f"{namespace}.{key}: {e}"
+                errors.append(message)
+            else:
+                if _is_subclass(val, _Section):
+                    errors += val.__prefetch()
+        return errors
+
+    def prefetch(cls) -> None:
+        errors = cls.__prefetch()
+        if len(errors) > 0:
+            prefix = "\n- "
+            message = f"Failed to prefetch:{prefix}" + prefix.join(errors)
+            raise ConfigEnvError(message)
 
 
 class Section(metaclass=MetaBase):

@@ -110,11 +110,23 @@ def test_env_none():
     assert value.get() is None
 
 
+def test_env_none_incorrect_default():
+    env = Environment({})
+    with raises(AssertionError):
+        env.none("<key>", default="None")
+
+
 def test_env_bool():
     env = Environment({"<key>": "True"})
 
     value = cast(FutureValue, env.bool("<key>"))
     assert value.get() is True
+
+
+def test_env_bool_incorrect_default():
+    env = Environment({})
+    with raises(AssertionError):
+        env.bool("<key>", default="True")
 
 
 def test_env_int():
@@ -124,11 +136,23 @@ def test_env_int():
     assert value.get() == 42
 
 
+def test_env_int_incorrect_default():
+    env = Environment({})
+    with raises(AssertionError):
+        env.int("<key>", default="42")
+
+
 def test_env_float():
     env = Environment({"<key>": "3.14"})
 
     value = cast(FutureValue, env.float("<key>"))
     assert value.get() == 3.14
+
+
+def test_env_float_incorrect_default():
+    env = Environment({})
+    with raises(AssertionError):
+        env.float("<key>", default="3.14")
 
 
 def test_env_str():
@@ -138,11 +162,23 @@ def test_env_str():
     assert value.get() == "banana"
 
 
+def test_env_str_incorrect_default():
+    env = Environment({})
+    with raises(AssertionError):
+        env.str("<key>", default=None)
+
+
 def test_env_tuple():
     env = Environment({"<key>": "first, second"})
 
     value = cast(FutureValue, env.tuple("<key>"))
     assert value.get() == ("first", "second",)
+
+
+def test_env_tuple_incorrect_default():
+    env = Environment({})
+    with raises(AssertionError):
+        env.tuple("<key>", default=[])
 
 
 def test_env_tuple_with_separator():

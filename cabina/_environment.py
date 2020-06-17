@@ -49,21 +49,27 @@ class Environment:
         return self.raw(name, default, parser)
 
     def none(self, name: str, default: Union[NilType, None] = Nil) -> None:
+        assert isinstance(default, (type(None), NilType))
         return self(name, default, parse_none)
 
     def bool(self, name: str, default: Union[NilType, bool] = Nil) -> bool:
+        assert default is Nil or isinstance(default, bool)
         return self(name, default, parse_bool)
 
     def int(self, name: str, default: Union[NilType, int] = Nil) -> int:
+        assert default is Nil or isinstance(default, int)
         return self(name, default, parse_int)
 
     def float(self, name: str, default: Union[NilType, float] = Nil) -> float:
+        assert default is Nil or isinstance(default, float)
         return self(name, default, parse_float)
 
     def tuple(self, name: str, default: Union[NilType, str] = Nil, *,
               separator: str = ",") -> Tuple[str, ...]:
+        assert default is Nil or isinstance(default, tuple)
         parser = partial(parse_tuple, separator=separator)
         return self(name, default, parser)
 
     def str(self, name: str, default: Union[NilType, str] = Nil) -> str:
+        assert default is Nil or isinstance(default, str)
         return self.raw(name, default, parse_str)

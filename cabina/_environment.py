@@ -21,6 +21,9 @@ class Environment:
     def __init__(self, environ: Mapping[str, str] = os.environ) -> None:
         self._environ = environ
 
+    def __repr__(self) -> str:
+        return f"cabina.Environment({self._environ!r})"
+
     def get(self, name: str, default: Union[NilType, ValueType] = Nil,
             parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
         try:
@@ -55,7 +58,7 @@ class Environment:
     def tuple(self, name: str, default: Union[NilType, str] = Nil, *,
               separator: str = ",") -> Tuple[str, ...]:
         parser = partial(parse_tuple, separator=separator)
-        return cast(Tuple[str, ...], self(name, default, parser))
+        return self(name, default, parser)
 
     def str(self, name: str, default: Union[NilType, str] = Nil) -> str:
         return self.raw(name, default, parse_str)

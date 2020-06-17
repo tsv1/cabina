@@ -1,10 +1,28 @@
 import inspect
-from typing import Any, Dict, ItemsView, Iterator, KeysView, Optional, Tuple, Union, ValuesView
+from typing import (
+    Any,
+    Dict,
+    ItemsView,
+    Iterator,
+    KeysView,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    ValuesView,
+)
 
 from niltype import Nil, NilType
 
 from ._future_value import FutureValue
-from .errors import ConfigAttrError, ConfigError, ConfigKeyError
+from .errors import (
+    ConfigAttrError,
+    ConfigEnvError,
+    ConfigError,
+    ConfigKeyError,
+    EnvKeyError,
+    EnvParseError,
+)
 
 _Section = None
 _Config = None
@@ -151,6 +169,27 @@ class MetaBase(type):
             if default is not Nil:
                 return default
             raise
+
+    def __prefetch(cls) -> List[str]:
+        errors: List[str] = []
+        for key in cls.__members__:
+            try:
+                val = getattr(cls, key)
+            except (EnvKeyError, EnvParseError) as e:
+                namespace = repr(cls)[1:-1]
+                message = f"{namespace}.{key}: {e}"
+                errors.append(message)
+            else:
+                if _is_subclass(val, _Section):
+                    errors += val.__prefetch()
+        return errors
+
+    def prefetch(cls) -> None:
+        errors = cls.__prefetch()
+        if len(errors) > 0:
+            prefix = "\n- "
+            message = f"Failed to prefetch:{prefix}" + prefix.join(errors)
+            raise ConfigEnvError(message)
 
 
 class Section(metaclass=MetaBase):

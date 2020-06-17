@@ -60,6 +60,12 @@ def test_import_env_parse_error():
         from cabina import EnvParseError
 
 
+def test_import_config_env_error():
+    from cabina.errors import ConfigEnvError
+    with raises(ImportError):
+        from cabina import ConfigEnvError
+
+
 def test_import_environment():
     from cabina import Environment
 

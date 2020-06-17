@@ -37,7 +37,12 @@ class Environment:
 
     def raw(self, name: str, default: Union[NilType, ValueType] = Nil,
             parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
-        return cast(ValueType, FutureValue[ValueType](self.get, name, default, parser))
+        kwargs = {}
+        if default is not Nil:
+            kwargs["default"] = default
+        if parser is not parse_as_is:
+            kwargs["parser"] = parser
+        return cast(ValueType, FutureValue[ValueType](self.get, name, **kwargs))
 
     def __call__(self, name: str, default: Union[NilType, ValueType] = Nil,
                  parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:

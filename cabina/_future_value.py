@@ -20,3 +20,16 @@ class FutureValue(Generic[ValueType]):
         if self._value is Nil:
             return self.fetch()
         return self._value
+
+    def __repr__(self) -> str:
+        args = [repr(arg) for arg in self._args]
+        str_args = ", ".join(args)
+
+        kwargs = [f"{key}={val!r}" for key, val in self._kwargs.items()]
+        str_kwargs = ", ".join(kwargs)
+
+        if (len(args) > 0) and (len(kwargs) > 0):
+            return f"FutureValue({str_args}, {str_kwargs})"
+        elif len(args) > 0:
+            return f"FutureValue({str_args})"
+        return f"FutureValue({str_kwargs})"

@@ -52,6 +52,10 @@ def parse_str(value: str, *,
 
 def parse_tuple(value: str, *, separator: str = ",",
                 subparser: Callable[[str], Any] = parse_str) -> Tuple[Any, ...]:
+    if value.startswith("(") and value.endswith(")"):
+        value = value[1:-1]
+    if value.endswith(separator):
+        value = value[:-len(separator)]
     parsed = value.split(separator)
     try:
         return tuple(subparser(x) for x in parsed)

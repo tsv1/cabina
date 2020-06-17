@@ -7,7 +7,13 @@ from cabina.parsers import parse_int, parse_tuple
 
 @pytest.mark.parametrize(("value", "expected"), [
     ("banana", ("banana",)),
-    ("first, second", ("first", "second",))
+    ("banana,", ("banana",)),
+    ("(banana)", ("banana",)),
+    ("(banana,)", ("banana",)),
+    ("first, second", ("first", "second",)),
+    ("first, second,", ("first", "second",)),
+    ("(first, second)", ("first", "second",)),
+    ("(first, second,)", ("first", "second",)),
 ])
 def test_parse_tuple(value, expected):
     assert parse_tuple(value) == expected
@@ -40,7 +46,7 @@ def test_parse_empty_tuple():
 
 def test_parse_invalid_tuple():
     with raises(Exception) as exc_info:
-        parse_tuple("banana,")
+        parse_tuple("banana,,")
 
     assert exc_info.type is EnvParseError
     assert str(exc_info.value) == ("Failed to parse 'banana,' as tuple: "

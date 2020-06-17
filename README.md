@@ -36,3 +36,164 @@ class Config(cabina.Config):
 assert Config.Main.API_URL == "http://localhost:8080"
 assert Config["Main"]["API_URL"] == "http://localhost:8080"
 ```
+
+
+## Recipes
+
+### Root Section
+
+```sh
+export API_HOST=localhost;
+export API_PORT=8080;
+```
+
+```python
+import cabina
+from cabina import env
+
+
+class Config(cabina.Config, cabina.Section):
+    API_HOST = env.str("API_HOST")
+    API_PORT = env.int("API_PORT")
+
+
+assert Config.API_HOST == "localhost"
+assert Config.API_PORT == 8080
+```
+
+
+### Computed Values
+
+```sh
+export API_HOST=localhost;
+export API_PORT=8080;
+```
+
+```python
+import cabina
+from cabina import computed, env
+
+
+class Config(cabina.Config, cabina.Section):
+    API_HOST: str = env.str("API_HOST")
+    API_PORT: int = env.int("API_PORT")
+
+    @computed
+    def API_URL(cls) -> str:
+        return f"http://{cls.API_HOST}:{cls.API_PORT}"
+
+
+assert Config.API_URL == "http://localhost:8080"
+```
+
+
+### Default Values
+
+```sh
+export API_HOST=127.0.0.1;
+```
+
+```python
+import cabina
+from cabina import env
+
+
+class Config(cabina.Config, cabina.Section):
+    API_HOST = env.str("API_HOST", default="localhost")
+    API_PORT = env.int("API_PORT", default=8080)
+
+
+assert Config.API_HOST == "127.0.0.1"
+assert Config.API_PORT == 8080
+```
+
+
+### Raw Values
+
+```sh
+export DEBUG= yes;
+#            ^ extra space
+```
+
+```python
+import cabina
+from cabina import env
+
+
+class Config(cabina.Config, cabina.Section):
+    DEBUG_RAW = env.raw("DEBUG")
+    DEBUG_STR = env.str("DEBUG")
+
+
+assert Config.DEBUG_RAW == ""  # True
+assert Config.DEBUG_STR == "yes"  # Error
+```
+
+
+### Custom Parsers
+
+```sh
+export HTTP_TIMEOUT=10s;
+```
+
+```python
+import cabina
+from cabina import env
+from pytimeparse import parse as parse_duration
+
+
+class Config(cabina.Config, cabina.Section):
+    HTTP_TIMEOUT: int = env("HTTP_TIMEOUT", parser=parse_duration)
+
+
+assert Config.HTTP_TIMEOUT == 10
+```
+
+
+### Prefetch Env Vars
+
+```sh
+export DEBUG=yes;
+export API_PORT=80a;  # <- extra "a"
+```
+
+```python
+import cabina
+from cabina import env
+
+
+class Config(cabina.Config, cabina.Section):
+    DEBUG = env.bool("DEBUG")
+    API_HOST = env.str("API_HOST")
+    API_PORT = env.int("API_PORT")
+
+
+Config.prefetch()
+
+# ConfigEnvError: Failed to prefetch:
+# - Config.API_HOST: 'API_HOST' does not exist
+# - Config.API_PORT: Failed to parse '80a' as int
+```
+
+
+### Env Vars Prefix
+
+```sh
+export APP_HOST=localhost;
+export APP_PORT=8080;
+```
+
+```python
+import cabina
+
+env = cabina.Environment(prefix="APP_")
+
+
+class Config(cabina.Config, cabina.Section):
+    API_HOST = env.str("HOST")
+    API_PORT = env.int("PORT")
+
+
+assert Config.API_HOST == "localhost"
+assert Config.API_PORT == 8080
+```

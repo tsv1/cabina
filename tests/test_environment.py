@@ -71,6 +71,22 @@ def test_env_future_value_get_cached():
     assert value.get() == "value-1"
 
 
+def test_env_get():
+    env = Environment({"<key>": "1234"})
+    assert env.get("<key>") == "1234"
+
+
+def test_env_get_with_parser():
+    env = Environment({"<key>": "1234"})
+    assert env.get("<key>", parser=int) == 1234
+
+
+def test_env_get_with_default():
+    env = Environment({})
+    assert env.get("<key>", default=None) is None
+    assert env.get("<key>", default="banana") == "banana"
+
+
 def test_env_raw():
     env = Environment({"<key>": "1234"})
 

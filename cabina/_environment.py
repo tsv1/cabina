@@ -1,6 +1,6 @@
 import os
 from functools import partial
-from typing import Callable, Mapping, Tuple, Union, cast
+from typing import Any, Callable, Mapping, Tuple, Union, cast
 
 from niltype import Nil, NilType
 
@@ -67,10 +67,12 @@ class Environment:
         assert default is Nil or isinstance(default, float)
         return self(name, default, parse_float)
 
-    def tuple(self, name: str, default: Union[NilType, str] = Nil, *,
-              separator: str = ",") -> Tuple[str, ...]:
+    def tuple(self, name: str,
+              default: Union[NilType, Tuple[ValueType, ...]] = Nil, *,
+              separator: str = ",",
+              subparser: Callable[[str], Any] = parse_str) -> Tuple[ValueType, ...]:
         assert default is Nil or isinstance(default, tuple)
-        parser = partial(parse_tuple, separator=separator)
+        parser = partial(parse_tuple, separator=separator, subparser=subparser)
         return self(name, default, parser)
 
     def str(self, name: str, default: Union[NilType, str] = Nil) -> str:

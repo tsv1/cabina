@@ -5,11 +5,13 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/cabina?style=flat-square)](https://pypi.python.org/pypi/cabina/)
 [![Python Version](https://img.shields.io/pypi/pyversions/cabina.svg?style=flat-square)](https://pypi.python.org/pypi/cabina/)
 
+
 ## Installation
 
 ```sh
 pip3 install cabina
 ```
+
 
 ## Usage
 
@@ -39,6 +41,16 @@ assert Config["Main"]["API_URL"] == "http://localhost:8080"
 
 
 ## Recipes
+
+* [Root Section](#root-section)
+* [Computed Values](#computed-values)
+* [Default Values](#default-values)
+* [Raw Values](#raw-values)
+* [Custom Parsers](#custom-parsers)
+* [JSON Parser](#json-parser)
+* [Prefetch Env Vars](#prefetch-env-vars)
+* [Env Vars Prefix](#env-vars-prefix)
+
 
 ### Root Section
 
@@ -147,6 +159,29 @@ class Config(cabina.Config, cabina.Section):
 
 
 assert Config.HTTP_TIMEOUT == 10
+```
+
+
+### JSON Parser
+
+```sh
+export IMAGE_SETTINGS='{"AllowedContentTypes": ["image/png", "image/jpeg"]}';
+```
+
+```python
+import json
+
+import cabina
+from cabina import env
+
+
+class Config(cabina.Config, cabina.Section):
+    IMAGE_SETTINGS = env("IMAGE_SETTINGS", parser=json.loads)
+
+
+assert Config.IMAGE_SETTINGS == {
+    'AllowedContentTypes': ['image/png', 'image/jpeg']
+}
 ```
 
 

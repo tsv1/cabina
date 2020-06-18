@@ -78,6 +78,10 @@ def test_import_future_value():
     from cabina import FutureValue
 
 
+def test_import_value_type():
+    from cabina import ValueType
+
+
 def test_import_parser_parse_as_is():
     from cabina.parsers import parse_as_is
     with raises(ImportError):

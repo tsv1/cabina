@@ -267,14 +267,49 @@ def test_section_reserved_keys():
 
 def test_section_inheritance():
     class Section(cabina.Section):
+        DEBUG = False
+
+    class AnotherSection(Section):
         pass
 
+    assert Section.DEBUG == AnotherSection.DEBUG
+
+
+def test_section_inheritance_overriding():
+    class Section(cabina.Section):
+        DEBUG = False
+
+    class AnotherSection(Section):
+        DEBUG = True
+        TZ = "UTC"
+
+    assert Section.DEBUG != AnotherSection.DEBUG
+    assert AnotherSection.TZ == "UTC"
+
     with raises(Exception) as exc_info:
-        class AnotherSection(Section):
+        Section.TZ
+
+    assert exc_info.type is ConfigAttrError
+    assert str(exc_info.value) == f"'TZ' does not exist in {Section!r}"
+
+
+def test_section_multiple_inheritance():
+    class Section(cabina.Section):
+        DEBUG = False
+
+    class AnotherSection(Section, cabina.Section):
+        pass
+
+    assert Section.DEBUG == AnotherSection.DEBUG
+
+
+def test_section_invalid_multiple_inheritance():
+    with raises(Exception) as exc_info:
+        class Section(cabina.Section, dict):
             pass
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to inherit {Section!r}"
+    assert str(exc_info.value) == f"Attempted to inherit {dict}"
 
 
 def test_section_computed():

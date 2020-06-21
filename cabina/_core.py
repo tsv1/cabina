@@ -67,10 +67,11 @@ class MetaBase(type):
         super().__init__(name, bases, attrs)
 
         for base in bases:
-            if (base is not _Config) and (base is not _Section):
+            if not _is_subclass(base, (_Config, _Section)):
                 raise ConfigError(f"Attempted to inherit {base!r}")
 
         if _is_config(cls) or _is_section(cls):
+            cls.__frozen__ = False
             cls.__members__ = {}
 
         reserved = set(dir(cls.__class__))
@@ -82,7 +83,9 @@ class MetaBase(type):
                 raise ConfigError(f"Attempted to use reserved {key!r} in {name!r}")
 
             if _is_subclass(val, _Section):
+                val.__frozen__ = False
                 val.__parent__ = cls
+                val.__frozen__ = True
 
             if _is_config(cls) and _is_section(cls):
                 cls.__members__[key] = val
@@ -108,7 +111,7 @@ class MetaBase(type):
         raise ConfigAttrError(f"{name!r} does not exist in {cls!r}")
 
     def __setattr__(cls, name: str, value: Any) -> None:
-        if cls.__frozen__ and name != "__parent__":
+        if cls.__frozen__ and name != "__frozen__":
             if name in cls:
                 raise ConfigError(f"Attempted to override {name!r} in {cls!r}")
             raise ConfigError(f"Attempted to add {name!r} to {cls!r} at runtime")

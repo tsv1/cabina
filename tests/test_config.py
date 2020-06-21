@@ -294,11 +294,52 @@ def test_config_reserved_keys():
 
 def test_config_inheritance():
     class Config(cabina.Config):
+        class Main(cabina.Section):
+            DEBUG = False
+
+    class AnotherConfig(Config):
         pass
 
+    assert Config.Main == AnotherConfig.Main
+    assert Config.Main.DEBUG == AnotherConfig.Main.DEBUG
+
+
+def test_config_inheritance_overriding():
+    class Config(cabina.Config):
+        class Main(cabina.Section):
+            DEBUG = False
+
+    class AnotherConfig(Config):
+        class Main(cabina.Section):
+            DEBUG = True
+            TZ = "UTC"
+
+    assert Config.Main != AnotherConfig.Main
+    assert Config.Main.DEBUG != AnotherConfig.Main.DEBUG
+    assert AnotherConfig.Main.TZ == "UTC"
+
     with raises(Exception) as exc_info:
-        class AnotherConfig(Config):
+        Config.Main.TZ
+
+    assert exc_info.type is ConfigAttrError
+    assert str(exc_info.value) == f"'TZ' does not exist in {Config.Main!r}"
+
+
+def test_config_multiple_inheritance():
+    class Config(cabina.Config):
+        class Main(cabina.Section):
+            pass
+
+    class AnotherConfig(Config, cabina.Config):
+        pass
+
+    assert Config.Main == AnotherConfig.Main
+
+
+def test_config_invalid_multiple_inheritance():
+    with raises(Exception) as exc_info:
+        class Config(cabina.Config, dict):
             pass
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to inherit {Config!r}"
+    assert str(exc_info.value) == f"Attempted to inherit {dict}"

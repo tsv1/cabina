@@ -22,7 +22,7 @@ def test_env_config_get_nonexisting_key():
         Config.API_HOST
 
     assert exc_info.type is EnvKeyError
-    assert str(exc_info.value) == f"'HOST' does not exist"
+    assert str(exc_info.value) == "'HOST' does not exist"
 
 
 def test_env_config_get_existing_key():

@@ -1,6 +1,6 @@
 import os
 from functools import partial
-from typing import Any, Callable, Mapping, Tuple, Union, cast
+from typing import Any, Callable, Dict, Mapping, Tuple, Union, cast
 
 from niltype import Nil, NilType
 
@@ -40,7 +40,7 @@ class Environment:
 
     def raw(self, name: str, default: Union[NilType, ValueType] = Nil,
             parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
-        kwargs = {}
+        kwargs: Dict[str, Any] = {}
         if default is not Nil:
             kwargs["default"] = default
         if parser is not parse_as_is:

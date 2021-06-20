@@ -21,4 +21,4 @@ def test_parse_empty_str():
         parse_str("")
 
     assert exc_info.type is EnvParseError
-    assert str(exc_info.value) == f"Failed to parse '' as non-empty str"
+    assert str(exc_info.value) == "Failed to parse '' as non-empty str"

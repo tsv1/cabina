@@ -76,7 +76,7 @@ def test_future_value_repr():
     # kwargs
     assert repr(FutureValue(accessor, kwarg="val")) == "FutureValue(kwarg='val')"
     assert (repr(FutureValue(accessor, kwarg1=1, kwarg2="val")) ==
-            f"FutureValue(kwarg1=1, kwarg2='val')")
+            "FutureValue(kwarg1=1, kwarg2='val')")
 
     # args & kwargs
     assert (repr(FutureValue(accessor, "arg", default="val")) ==

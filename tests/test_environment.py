@@ -24,7 +24,7 @@ def test_env_future_value_get_nonexisting_key():
         value.get()
 
     assert exc_info.type is EnvKeyError
-    assert str(exc_info.value) == f"'<key>' does not exist"
+    assert str(exc_info.value) == "'<key>' does not exist"
 
 
 def test_env_future_value_get_default_value():

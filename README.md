@@ -28,10 +28,6 @@ class Config(cabina.Config):
         @computed
         def API_URL(cls) -> str:
             return f"http://{cls.API_HOST}:{cls.API_PORT}"
-
-    class Kafka(cabina.Section):
-        BOOTSTRAP_SERVERS: tuple = env.tuple("KAFKA_BOOTSTRAP_SERVERS")
-        AUTO_COMMIT: bool = env.bool("KAFKA_AUTO_COMMIT", True)
 ```
 
 ```python
@@ -50,6 +46,8 @@ assert Config["Main"]["API_URL"] == "http://localhost:8080"
 * [JSON Parser](#json-parser)
 * [Prefetch Env Vars](#prefetch-env-vars)
 * [Env Vars Prefix](#env-vars-prefix)
+* [Mapping Protocol](#mapping-protocol)
+* [__init_subclass__](#init_subclass)
 
 
 ### Root Section
@@ -64,7 +62,7 @@ import cabina
 from cabina import env
 
 
-class Config(cabina.Config, cabina.Section):
+class Config(cabina.Config, cabina.Section):  # <- inherited from cabina.Section
     API_HOST = env.str("API_HOST")
     API_PORT = env.int("API_PORT")
 
@@ -111,7 +109,7 @@ from cabina import env
 
 
 class Config(cabina.Config, cabina.Section):
-    API_HOST = env.str("API_HOST", default="localhost")
+    API_HOST = env.str("API_HOST", default="localhost")  # <- default arg
     API_PORT = env.int("API_PORT", default=8080)
 
 
@@ -133,7 +131,7 @@ from cabina import env
 
 
 class Config(cabina.Config, cabina.Section):
-    DEBUG_RAW = env.raw("DEBUG")
+    DEBUG_RAW = env.raw("DEBUG")  # <- alias to env("DEBUG")
     DEBUG_STR = env.str("DEBUG")
 
 
@@ -151,7 +149,7 @@ export HTTP_TIMEOUT=10s;
 ```python
 import cabina
 from cabina import env
-from pytimeparse import parse as parse_duration
+from pytimeparse import parse as parse_duration  # <- external package
 
 
 class Config(cabina.Config, cabina.Section):
@@ -176,7 +174,7 @@ from cabina import env
 
 
 class Config(cabina.Config, cabina.Section):
-    IMAGE_SETTINGS = env("IMAGE_SETTINGS", parser=json.loads)
+    IMAGE_SETTINGS = env("IMAGE_SETTINGS", parser=json.loads)  # <- json.loads
 
 
 assert Config.IMAGE_SETTINGS == {
@@ -203,7 +201,7 @@ class Config(cabina.Config, cabina.Section):
     API_PORT = env.int("API_PORT")
 
 
-Config.prefetch()
+Config.prefetch()  # <- prefetch method
 
 # ConfigEnvError: Failed to prefetch:
 # - Config.API_HOST: 'API_HOST' does not exist
@@ -225,7 +223,7 @@ env = cabina.Environment(prefix="APP_")
 
 
 class Config(cabina.Config, cabina.Section):
-    API_HOST = env.str("HOST")
+    API_HOST = env.str("HOST")  # <- No "APP_" prefix
     API_PORT = env.int("PORT")
 
 

@@ -35,6 +35,16 @@ assert Config.Main.API_URL == "http://localhost:8080"
 assert Config["Main"]["API_URL"] == "http://localhost:8080"
 ```
 
+### print
+
+```python
+Config.print()
+# class <Config>:
+#     class <Main>:
+#         API_HOST = 'localhost'
+#         API_PORT = 8080
+#         API_URL = 'http://localhost:8080'
+```
 
 ## Recipes
 

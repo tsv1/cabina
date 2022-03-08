@@ -1,4 +1,5 @@
 import inspect
+import sys
 from typing import (
     Any,
     Dict,
@@ -139,14 +140,28 @@ class MetaBase(type):
         else:  # pragma: nocover
             pass
 
+    @property
+    def __members(cls) -> Dict[str, Any]:
+        result = {}
+
+        for base in reversed(cls.__bases__):
+            if _is_config(base) or _is_section(base):
+                for key in base:  # type: ignore
+                    result[key] = ...
+
+        for key in cls.__members__:
+            result[key] = ...
+
+        return result
+
     def __len__(cls) -> int:
-        return len(cls.__members__)
+        return len(cls.__members)
 
     def __iter__(cls) -> Iterator[str]:
-        return cls.__members__.__iter__()
+        return cls.__members.__iter__()
 
     def __contains__(cls, item: Any) -> bool:
-        return item in cls.__members__
+        return item in cls.__members
 
     def __repr__(cls) -> str:
         namespace = [cls.__name__]
@@ -157,13 +172,13 @@ class MetaBase(type):
         return "<" + ".".join(reversed(namespace)) + ">"
 
     def keys(cls) -> KeysView[str]:
-        return cls.__members__.keys()
+        return cls.__members.keys()
 
     def values(cls) -> ValuesView[Any]:
-        return {key: getattr(cls, key) for key in cls.__members__}.values()
+        return {key: getattr(cls, key) for key in cls.__members}.values()
 
     def items(cls) -> ItemsView[str, Any]:
-        return {key: getattr(cls, key) for key in cls.__members__}.items()
+        return {key: getattr(cls, key) for key in cls.__members}.items()
 
     def get(cls, key: str, default: Union[NilType, Any] = Nil) -> Any:
         try:
@@ -175,7 +190,7 @@ class MetaBase(type):
 
     def __prefetch(cls) -> List[str]:
         errors: List[str] = []
-        for key in cls.__members__:
+        for key in cls.__members:
             try:
                 val = getattr(cls, key)
             except (EnvKeyError, EnvParseError) as e:
@@ -193,6 +208,25 @@ class MetaBase(type):
             prefix = "\n- "
             message = f"Failed to prefetch:{prefix}" + prefix.join(errors)
             raise ConfigEnvError(message)
+
+    def __format(cls, *, indent: int = 0, prepend: bool = False) -> List[str]:
+        res = [""] if prepend else []
+
+        res.append(" " * indent + f"class <{cls.__name__}>:")
+        if len(cls) > 0:
+            for key, val in cls.items():
+                if _is_subclass(val, (_Config, _Section)):
+                    res += val.__format(indent=indent + 4, prepend=True)
+                else:
+                    res.append(" " * (indent + 4) + f"{key} = {val!r}")
+        else:
+            res.append(" " * (indent + 4) + "...")
+
+        return res
+
+    def print(cls, stream: Any = sys.stdout) -> None:
+        formatted = "\n".join(cls.__format())
+        print(formatted, file=stream)
 
 
 class Section(metaclass=MetaBase):

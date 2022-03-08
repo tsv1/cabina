@@ -1,3 +1,4 @@
+import io
 from typing import ItemsView, KeysView, ValuesView
 
 from pytest import raises
@@ -275,3 +276,33 @@ def test_section_computed():
             return f"http://{cls.HOST}:{cls.PORT}"
 
     assert Section.URL == "http://localhost:8080"
+
+
+def test_section_empty_print():
+    class Section(cabina.Section):
+        pass
+
+    stream = io.StringIO()
+    Section.print(stream)
+
+    assert stream.getvalue() == "\n".join([
+        "class <Section>:",
+        "    ...",
+        "",
+    ])
+
+
+def test_section_print():
+    class Section(cabina.Section):
+        HOST = "localhost"
+        PORT = 8080
+
+    stream = io.StringIO()
+    Section.print(stream)
+
+    assert stream.getvalue() == "\n".join([
+        "class <Section>:",
+        "    HOST = 'localhost'",
+        "    PORT = 8080",
+        "",
+    ])

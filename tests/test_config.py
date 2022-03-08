@@ -1,3 +1,4 @@
+import io
 from typing import ItemsView, KeysView, ValuesView
 
 from pytest import raises
@@ -290,3 +291,57 @@ def test_config_reserved_keys():
 
         assert exc_info.type is ConfigError
         assert str(exc_info.value) == f"Attempted to use reserved {reserved_key!r} in 'Config'"
+
+
+def test_config_print():
+    class Config(cabina.Config):
+        pass
+
+    stream = io.StringIO()
+    Config.print(stream)
+
+    assert stream.getvalue() == "\n".join([
+        "class <Config>:",
+        "    ...",
+        "",
+    ])
+
+
+def test_config_with_sections_print():
+    class Config(cabina.Config):
+        class First(cabina.Section):
+            pass
+
+        class Second(cabina.Section):
+            pass
+
+    stream = io.StringIO()
+    Config.print(stream)
+
+    assert stream.getvalue() == "\n".join([
+        "class <Config>:",
+        "",
+        "    class <First>:",
+        "        ...",
+        "",
+        "    class <Second>:",
+        "        ...",
+        ""
+    ])
+
+
+def test_config_with_section_print():
+    class Config(cabina.Config):
+        class Main(cabina.Section):
+            DEBUG = False
+
+    stream = io.StringIO()
+    Config.print(stream)
+
+    assert stream.getvalue() == "\n".join([
+        "class <Config>:",
+        "",
+        "    class <Main>:",
+        "        DEBUG = False",
+        ""
+    ])

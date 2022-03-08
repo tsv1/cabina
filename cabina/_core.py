@@ -1,4 +1,5 @@
 import inspect
+import sys
 from typing import (
     Any,
     Dict,
@@ -207,6 +208,25 @@ class MetaBase(type):
             prefix = "\n- "
             message = f"Failed to prefetch:{prefix}" + prefix.join(errors)
             raise ConfigEnvError(message)
+
+    def __format(cls, *, indent: int = 0, prepend: bool = False) -> List[str]:
+        res = [""] if prepend else []
+
+        res.append(" " * indent + f"class <{cls.__name__}>:")
+        if len(cls) > 0:
+            for key, val in cls.items():
+                if _is_subclass(val, (_Config, _Section)):
+                    res += val.__format(indent=indent + 4, prepend=True)
+                else:
+                    res.append(" " * (indent + 4) + f"{key} = {val!r}")
+        else:
+            res.append(" " * (indent + 4) + "...")
+
+        return res
+
+    def print(cls, stream: Any = sys.stdout) -> None:
+        formatted = "\n".join(cls.__format())
+        print(formatted, file=stream)
 
 
 class Section(metaclass=MetaBase):

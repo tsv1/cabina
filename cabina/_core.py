@@ -139,14 +139,28 @@ class MetaBase(type):
         else:  # pragma: nocover
             pass
 
+    @property
+    def __members(cls) -> Dict[str, Any]:
+        result = {}
+
+        for base in reversed(cls.__bases__):
+            if _is_config(base) or _is_section(base):
+                for key in base:  # type: ignore
+                    result[key] = ...
+
+        for key in cls.__members__:
+            result[key] = ...
+
+        return result
+
     def __len__(cls) -> int:
-        return len(cls.__members__)
+        return len(cls.__members)
 
     def __iter__(cls) -> Iterator[str]:
-        return cls.__members__.__iter__()
+        return cls.__members.__iter__()
 
     def __contains__(cls, item: Any) -> bool:
-        return item in cls.__members__
+        return item in cls.__members
 
     def __repr__(cls) -> str:
         namespace = [cls.__name__]
@@ -157,13 +171,13 @@ class MetaBase(type):
         return "<" + ".".join(reversed(namespace)) + ">"
 
     def keys(cls) -> KeysView[str]:
-        return cls.__members__.keys()
+        return cls.__members.keys()
 
     def values(cls) -> ValuesView[Any]:
-        return {key: getattr(cls, key) for key in cls.__members__}.values()
+        return {key: getattr(cls, key) for key in cls.__members}.values()
 
     def items(cls) -> ItemsView[str, Any]:
-        return {key: getattr(cls, key) for key in cls.__members__}.items()
+        return {key: getattr(cls, key) for key in cls.__members}.items()
 
     def get(cls, key: str, default: Union[NilType, Any] = Nil) -> Any:
         try:
@@ -175,7 +189,7 @@ class MetaBase(type):
 
     def __prefetch(cls) -> List[str]:
         errors: List[str] = []
-        for key in cls.__members__:
+        for key in cls.__members:
             try:
                 val = getattr(cls, key)
             except (EnvKeyError, EnvParseError) as e:

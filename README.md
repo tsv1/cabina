@@ -46,8 +46,6 @@ assert Config["Main"]["API_URL"] == "http://localhost:8080"
 * [JSON Parser](#json-parser)
 * [Prefetch Env Vars](#prefetch-env-vars)
 * [Env Vars Prefix](#env-vars-prefix)
-* [Mapping Protocol](#mapping-protocol)
-* [__init_subclass__](#init_subclass)
 
 
 ### Root Section

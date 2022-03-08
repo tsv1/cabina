@@ -46,6 +46,7 @@ assert Config["Main"]["API_URL"] == "http://localhost:8080"
 * [JSON Parser](#json-parser)
 * [Prefetch Env Vars](#prefetch-env-vars)
 * [Env Vars Prefix](#env-vars-prefix)
+* [Inheritance](#inheritance)
 
 
 ### Root Section
@@ -227,4 +228,31 @@ class Config(cabina.Config, cabina.Section):
 
 assert Config.API_HOST == "localhost"
 assert Config.API_PORT == 8080
+```
+
+
+### Inheritance
+
+```python
+import cabina
+
+
+class Config(cabina.Config, cabina.Section):
+    DEBUG = False
+
+    class Api(cabina.Section):
+        API_HOST = "app.dev"
+        API_PORT = 5000
+
+
+class ConfigLocal(Config):
+    DEBUG = True
+
+    class Api(Config.Api):
+        API_HOST = "localhost"
+
+
+assert ConfigLocal.DEBUG is True
+assert ConfigLocal.Api.API_HOST == "localhost"
+assert ConfigLocal.Api.API_PORT == 5000
 ```

@@ -50,18 +50,16 @@ def test_config_multiple_inheritance():
             DEBUG = False
             PORT = 5000
 
-    class MyConfig(Config, AnotherConfig):
+    class InheritedConfig(Config, AnotherConfig):
         pass
 
-    assert MyConfig.Main.DEBUG is True
-    assert MyConfig.Main.HOST == "localhost"
+    assert InheritedConfig.Main.DEBUG is True
+    assert InheritedConfig.Main.HOST == "localhost"
 
     with raises(Exception) as exc_info:
-        MyConfig.Main.PORT
+        InheritedConfig.Main.PORT
 
     assert exc_info.type is ConfigAttrError
-    assert MyConfig.Main != AnotherConfig.Main
-    assert MyConfig.Main == Config.Main
 
 
 def test_config_invalid_multiple_inheritance():

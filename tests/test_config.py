@@ -23,7 +23,7 @@ def test_config_init_not_allowed():
         Config()
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to initialize config {Config!r}"
+    assert str(exc_info.value) == "Attempted to initialize config <Config>"
 
 
 def test_config_options_not_allowed():
@@ -61,7 +61,7 @@ def test_config_get_nonexisting_attr():
         Config.Main
 
     assert exc_info.type is ConfigAttrError
-    assert str(exc_info.value) == f"'Main' does not exist in {Config!r}"
+    assert str(exc_info.value) == "'Main' does not exist in <Config>"
 
 
 def test_config_set_attr_not_allowed():
@@ -75,7 +75,7 @@ def test_config_set_attr_not_allowed():
         Config.Main = Section
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'Main' to <Config> at runtime"
 
 
 def test_config_override_attr_not_allowed():
@@ -90,7 +90,7 @@ def test_config_override_attr_not_allowed():
         Config.Main = Section
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to override 'Main' in {Config!r}"
+    assert str(exc_info.value) == "Attempted to override 'Main' in <Config>"
 
 
 def test_config_del_attr_not_allowed():
@@ -102,7 +102,7 @@ def test_config_del_attr_not_allowed():
         del Config.Main
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'Main' from {Config!r}"
+    assert str(exc_info.value) == "Attempted to remove 'Main' from <Config>"
 
 
 def test_config_get_item():
@@ -121,7 +121,7 @@ def test_config_get_nonexisting_item():
         Config["Main"]
 
     assert exc_info.type is ConfigKeyError
-    assert str(exc_info.value) == f"'Main' does not exist in {Config!r}"
+    assert str(exc_info.value) == "'Main' does not exist in <Config>"
 
 
 def test_config_set_item_not_allowed():
@@ -135,7 +135,7 @@ def test_config_set_item_not_allowed():
         Config["Main"] = Section
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'Main' to <Config> at runtime"
 
 
 def test_config_del_item_not_allowed():
@@ -147,7 +147,7 @@ def test_config_del_item_not_allowed():
         del Config["Main"]
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'Main' from {Config!r}"
+    assert str(exc_info.value) == "Attempted to remove 'Main' from <Config>"
 
 
 def test_config_len_without_sections():
@@ -248,7 +248,7 @@ def test_config_get():
         Config.get("banana")
 
     assert exc_info.type is ConfigKeyError
-    assert str(exc_info.value) == f"'banana' does not exist in {Config!r}"
+    assert str(exc_info.value) == "'banana' does not exist in <Config>"
 
 
 def test_config_eq():
@@ -266,7 +266,7 @@ def test_config_repr():
     class Conf(cabina.Config):
         pass
 
-    assert repr(Conf) == "<Conf>"
+    assert repr(Conf) == "class <Conf>:\n    ..."
 
 
 def test_config_unique_keys():

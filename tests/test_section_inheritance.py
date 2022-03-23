@@ -31,7 +31,7 @@ def test_section_inheritance_overriding():
         Section.TZ
 
     assert exc_info.type is ConfigAttrError
-    assert str(exc_info.value) == f"'TZ' does not exist in {Section!r}"
+    assert str(exc_info.value) == "'TZ' does not exist in <Section>"
 
 
 def test_section_multiple_inheritance():

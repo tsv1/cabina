@@ -36,7 +36,7 @@ def test_config_inheritance_overriding():
         Config.Main.TZ
 
     assert exc_info.type is ConfigAttrError
-    assert str(exc_info.value) == f"'TZ' does not exist in {Config.Main!r}"
+    assert str(exc_info.value) == "'TZ' does not exist in <Config.Main>"
 
 
 def test_config_multiple_inheritance():

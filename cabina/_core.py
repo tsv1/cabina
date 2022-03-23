@@ -1,5 +1,6 @@
 import inspect
 import sys
+import warnings
 from typing import (
     Any,
     Dict,
@@ -94,7 +95,8 @@ class MetaBase(type):
                 cls.__members__[key] = val
             elif _is_config(cls):
                 if not _is_subclass(val, _Section):
-                    raise ConfigError(f"Attempted to add non-Section {key!r} to {cls!r}")
+                    name = cls.__get_full_name()
+                    raise ConfigError(f"Attempted to add non-Section {key!r} to <{name}>")
                 cls.__members__[key] = val
             else:  # pragma: no cover
                 pass
@@ -109,22 +111,22 @@ class MetaBase(type):
         return attr
 
     def __getattr__(cls, name: str) -> Any:
-        raise ConfigAttrError(f"{name!r} does not exist in {cls!r}")
+        raise ConfigAttrError(f"{name!r} does not exist in <{cls.__get_full_name()}>")
 
     def __setattr__(cls, name: str, value: Any) -> None:
         if cls.__frozen__ and name != "__frozen__":
             if name in cls:
-                raise ConfigError(f"Attempted to override {name!r} in {cls!r}")
-            raise ConfigError(f"Attempted to add {name!r} to {cls!r} at runtime")
+                raise ConfigError(f"Attempted to override {name!r} in <{cls.__get_full_name()}>")
+            raise ConfigError(f"Attempted to add {name!r} to <{cls.__get_full_name()}> at runtime")
         super().__setattr__(name, value)
 
     def __delattr__(cls, name: str) -> None:
-        raise ConfigError(f"Attempted to remove {name!r} from {cls!r}")
+        raise ConfigError(f"Attempted to remove {name!r} from <{cls.__get_full_name()}>")
 
     def __getitem__(cls, key: str) -> Any:
         if key in cls:
             return getattr(cls, key)
-        raise ConfigKeyError(f"{key!r} does not exist in {cls!r}")
+        raise ConfigKeyError(f"{key!r} does not exist in <{cls.__get_full_name()}>")
 
     def __setitem__(cls, key: str, value: Any) -> None:
         return setattr(cls, key, value)
@@ -134,9 +136,9 @@ class MetaBase(type):
 
     def __call__(cls, *args: Any, **kwargs: Any) -> None:
         if _is_config(cls):
-            raise ConfigError(f"Attempted to initialize config {cls!r}")
+            raise ConfigError(f"Attempted to initialize config <{cls.__get_full_name()}>")
         elif _is_section(cls):
-            raise ConfigError(f"Attempted to initialize section {cls!r}")
+            raise ConfigError(f"Attempted to initialize section <{cls.__get_full_name()}>")
         else:  # pragma: nocover
             pass
 
@@ -164,21 +166,31 @@ class MetaBase(type):
         return item in cls.__members
 
     def __repr__(cls) -> str:
+        formatted = cls.__format(name=cls.__get_full_name())
+        return "\n".join(formatted)
+
+    def __get_full_name(cls) -> str:
         namespace = [cls.__name__]
         parent = cls.__parent__
         while parent is not None:
             namespace += [parent.__name__]
             parent = parent.__parent__
-        return "<" + ".".join(reversed(namespace)) + ">"
+        return ".".join(reversed(namespace))
 
     def keys(cls) -> KeysView[str]:
         return cls.__members.keys()
 
     def values(cls) -> ValuesView[Any]:
-        return {key: getattr(cls, key) for key in cls.__members}.values()
+        return {key: val for key, val in cls.items()}.values()
 
     def items(cls) -> ItemsView[str, Any]:
-        return {key: getattr(cls, key) for key in cls.__members}.items()
+        items = {}
+        for key in cls.__members:
+            try:
+                items[key] = getattr(cls, key)
+            except Exception as e:
+                items[key] = e
+        return items.items()
 
     def get(cls, key: str, default: Union[NilType, Any] = Nil) -> Any:
         try:
@@ -194,7 +206,7 @@ class MetaBase(type):
             try:
                 val = getattr(cls, key)
             except (EnvKeyError, EnvParseError) as e:
-                namespace = repr(cls)[1:-1]
+                namespace = cls.__get_full_name()
                 message = f"{namespace}.{key}: {e}"
                 errors.append(message)
             else:
@@ -209,10 +221,12 @@ class MetaBase(type):
             message = f"Failed to prefetch:{prefix}" + prefix.join(errors)
             raise ConfigEnvError(message)
 
-    def __format(cls, *, indent: int = 0, prepend: bool = False) -> List[str]:
+    def __format(cls, *,
+                 indent: int = 0, prepend: bool = False, name: Optional[str] = None) -> List[str]:
         res = [""] if prepend else []
 
-        res.append(" " * indent + f"class <{cls.__name__}>:")
+        name = name or cls.__name__
+        res.append(" " * indent + f"class <{name}>:")
         if len(cls) > 0:
             for key, val in cls.items():
                 if _is_subclass(val, (_Config, _Section)):
@@ -225,6 +239,7 @@ class MetaBase(type):
         return res
 
     def print(cls, stream: Any = sys.stdout) -> None:
+        warnings.warn("Deprecated: use print(<cls>) instead", DeprecationWarning)
         formatted = "\n".join(cls.__format())
         print(formatted, file=stream)
 

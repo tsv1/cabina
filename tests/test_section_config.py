@@ -23,7 +23,7 @@ def test_section_init_not_allowed():
         Config()
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to initialize config {Config!r}"
+    assert str(exc_info.value) == "Attempted to initialize config <Config>"
 
 
 def test_section_config_get_attr():
@@ -45,7 +45,7 @@ def test_section_config_get_nonexisting_attr():
         Config.Main
 
     assert exc_info.type is ConfigAttrError
-    assert str(exc_info.value) == f"'Main' does not exist in {Config!r}"
+    assert str(exc_info.value) == "'Main' does not exist in <Config>"
 
 
 def test_section_config_set_attr_not_allowed():
@@ -59,13 +59,13 @@ def test_section_config_set_attr_not_allowed():
         Config.HOST = "127.0.0.1"
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'HOST' to {Config!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'HOST' to <Config> at runtime"
 
     with raises(Exception) as exc_info:
         Config.Main = Section
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'Main' to <Config> at runtime"
 
 
 def test_section_config_del_attr_not_allowed():
@@ -79,13 +79,13 @@ def test_section_config_del_attr_not_allowed():
         del Config.Main
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'Main' from {Config!r}"
+    assert str(exc_info.value) == "Attempted to remove 'Main' from <Config>"
 
     with raises(Exception) as exc_info:
         del Config.HOST
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'HOST' from {Config!r}"
+    assert str(exc_info.value) == "Attempted to remove 'HOST' from <Config>"
 
 
 def test_section_config_get_item():
@@ -107,7 +107,7 @@ def test_section_config_get_nonexisting_item():
         Config["banana"]
 
     assert exc_info.type is ConfigKeyError
-    assert str(exc_info.value) == f"'banana' does not exist in {Config!r}"
+    assert str(exc_info.value) == "'banana' does not exist in <Config>"
 
 
 def test_section_config_set_item_not_allowed():
@@ -121,13 +121,13 @@ def test_section_config_set_item_not_allowed():
         Config["HOST"] = "127.0.0.1"
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'HOST' to {Config!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'HOST' to <Config> at runtime"
 
     with raises(Exception) as exc_info:
         Config["Main"] = Section
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'Main' to {Config!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'Main' to <Config> at runtime"
 
 
 def test_section_config_del_item_not_allowed():
@@ -141,13 +141,13 @@ def test_section_config_del_item_not_allowed():
         del Config["Main"]
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'Main' from {Config!r}"
+    assert str(exc_info.value) == "Attempted to remove 'Main' from <Config>"
 
     with raises(Exception) as exc_info:
         del Config["HOST"]
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'HOST' from {Config!r}"
+    assert str(exc_info.value) == "Attempted to remove 'HOST' from <Config>"
 
 
 def test_section_config_len_without_members():
@@ -276,7 +276,7 @@ def test_section_config_get():
         Config.get("banana")
 
     assert exc_info.type is ConfigKeyError
-    assert str(exc_info.value) == f"'banana' does not exist in {Config!r}"
+    assert str(exc_info.value) == "'banana' does not exist in <Config>"
 
 
 def test_section_config_eq():
@@ -294,7 +294,19 @@ def test_section_config_repr():
     class Conf(cabina.Config, cabina.Section):
         pass
 
-    assert repr(Conf) == "<Conf>"
+    assert repr(Conf) == "class <Conf>:\n    ..."
+
+
+def test_section_config_members_repr():
+    class Conf(cabina.Config, cabina.Section):
+        DEBUG = False
+        TZ = cabina.env.str("TZ")
+
+    assert repr(Conf) == "\n".join([
+        "class <Conf>:",
+        "    DEBUG = False",
+        "    TZ = EnvKeyError(\"'TZ' does not exist\")",
+    ])
 
 
 def test_section_config_with_subsections_repr():
@@ -303,9 +315,24 @@ def test_section_config_with_subsections_repr():
             class SubSection(cabina.Section):
                 pass
 
-    assert repr(Conf.Section.SubSection) == "<Conf.Section.SubSection>"
-    assert repr(Conf.Section) == "<Conf.Section>"
-    assert repr(Conf) == "<Conf>"
+    assert repr(Conf.Section.SubSection) == "\n".join([
+        "class <Conf.Section.SubSection>:",
+        "    ..."
+    ])
+    assert repr(Conf.Section) == "\n".join([
+        "class <Conf.Section>:",
+        "",
+        "    class <SubSection>:",
+        "        ..."
+    ])
+    assert repr(Conf) == "\n".join([
+        "class <Conf>:",
+        "",
+        "    class <Section>:",
+        "",
+        "        class <SubSection>:",
+        "            ..."
+    ])
 
 
 def test_section_config_unique_keys():

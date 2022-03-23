@@ -24,7 +24,7 @@ def test_section_init_not_allowed():
         Section()
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to initialize section {Section!r}"
+    assert str(exc_info.value) == "Attempted to initialize section <Section>"
 
 
 def test_section_get_attr():
@@ -44,7 +44,7 @@ def test_section_get_nonexisting_attr():
         Section.API_PORT
 
     assert exc_info.type is ConfigAttrError
-    assert str(exc_info.value) == f"'API_PORT' does not exist in {Section!r}"
+    assert str(exc_info.value) == "'API_PORT' does not exist in <Section>"
 
 
 def test_section_set_attr_not_allowed():
@@ -55,7 +55,7 @@ def test_section_set_attr_not_allowed():
         Section.API_HOST = "localhost"
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'API_HOST' to {Section!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'API_HOST' to <Section> at runtime"
 
 
 def test_section_override_attr_not_allowed():
@@ -66,7 +66,7 @@ def test_section_override_attr_not_allowed():
         Section.API_HOST = "127.0.0.1"
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to override 'API_HOST' in {Section!r}"
+    assert str(exc_info.value) == "Attempted to override 'API_HOST' in <Section>"
 
 
 def test_section_del_attr_not_allowed():
@@ -77,7 +77,7 @@ def test_section_del_attr_not_allowed():
         del Section.API_HOST
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'API_HOST' from {Section!r}"
+    assert str(exc_info.value) == "Attempted to remove 'API_HOST' from <Section>"
 
 
 def test_section_get_item():
@@ -97,7 +97,7 @@ def test_section_get_nonexisting_item():
         Section["API_HOST"]
 
     assert exc_info.type is ConfigKeyError
-    assert str(exc_info.value) == f"'API_HOST' does not exist in {Section!r}"
+    assert str(exc_info.value) == "'API_HOST' does not exist in <Section>"
 
 
 def test_section_set_item_not_allowed():
@@ -108,7 +108,7 @@ def test_section_set_item_not_allowed():
         Section["API_HOST"] = "localhost"
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to add 'API_HOST' to {Section!r} at runtime"
+    assert str(exc_info.value) == "Attempted to add 'API_HOST' to <Section> at runtime"
 
 
 def test_section_del_item_not_allowed():
@@ -119,7 +119,7 @@ def test_section_del_item_not_allowed():
         del Section["API_HOST"]
 
     assert exc_info.type is ConfigError
-    assert str(exc_info.value) == f"Attempted to remove 'API_HOST' from {Section!r}"
+    assert str(exc_info.value) == "Attempted to remove 'API_HOST' from <Section>"
 
 
 def test_section_len_without_options():
@@ -215,7 +215,7 @@ def test_section_get():
         Section.get("banana")
 
     assert exc_info.type is ConfigKeyError
-    assert str(exc_info.value) == f"'banana' does not exist in {Section!r}"
+    assert str(exc_info.value) == "'banana' does not exist in <Section>"
 
 
 def test_section_eq():
@@ -233,7 +233,19 @@ def test_section_repr():
     class Main(cabina.Section):
         pass
 
-    assert repr(Main) == "<Main>"
+    assert repr(Main) == "class <Main>:\n    ..."
+
+
+def test_section_members_repr():
+    class Main(cabina.Section):
+        DEBUG = False
+        TZ = cabina.env.str("TZ")
+
+    assert repr(Main) == "\n".join([
+        "class <Main>:",
+        "    DEBUG = False",
+        "    TZ = EnvKeyError(\"'TZ' does not exist\")",
+    ])
 
 
 def test_section_with_subsections_repr():
@@ -241,8 +253,16 @@ def test_section_with_subsections_repr():
         class SubSection(cabina.Section):
             pass
 
-    assert repr(Section.SubSection) == "<Section.SubSection>"
-    assert repr(Section) == "<Section>"
+    assert repr(Section.SubSection) == "\n".join([
+        "class <Section.SubSection>:",
+        "    ...",
+    ])
+    assert repr(Section) == "\n".join([
+        "class <Section>:",
+        "",
+        "    class <SubSection>:",
+        "        ...",
+    ])
 
 
 def test_section_unique_keys():

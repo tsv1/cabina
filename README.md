@@ -38,7 +38,7 @@ assert Config["Main"]["API_URL"] == "http://localhost:8080"
 ### print
 
 ```python
-Config.print()
+print(Config)
 # class <Config>:
 #     class <Main>:
 #         API_HOST = 'localhost'

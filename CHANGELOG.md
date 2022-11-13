@@ -2,6 +2,10 @@
 
 ## v0.7
 
+### v0.7.1 (2022-11-06)
+
+- Add Python 3.11 support [#10](https://github.com/nikitanovosibirsk/cabina/pull/10)
+
 ### v0.7.0 (2022-03-24)
 
 - Drop Python 3.6 support [#d10a009](https://github.com/nikitanovosibirsk/cabina/commit/d10a0090205fa498aa027c35a4a2746cbb93deed)

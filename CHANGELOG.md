@@ -2,6 +2,10 @@
 
 ## v0.7
 
+### v0.7.2 (2023-06-11)
+
+- Update requirements and README [#cfa9540](https://github.com/tsv1/cabina/commit/cfa95407c8bf260653599b269af8bff2d27e78b6)
+
 ### v0.7.1 (2022-11-06)
 
 - Add Python 3.11 support [#10](https://github.com/tsv1/cabina/pull/10)

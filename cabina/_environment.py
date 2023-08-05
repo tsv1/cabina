@@ -33,7 +33,7 @@ class Environment:
             value = self._environ[name]
         except KeyError:
             if default is Nil:
-                raise EnvKeyError(f"{name!r} does not exist") from None
+                raise EnvKeyError(f"${name} does not exist") from None
             return default
         else:
             return parser(value)

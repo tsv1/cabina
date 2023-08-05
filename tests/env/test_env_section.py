@@ -13,7 +13,7 @@ def test_env_section_define_nonexisting_key():
             API_HOST = env.str("HOST")
 
     assert exc_info.type is EnvKeyError
-    assert str(exc_info.value) == "'HOST' does not exist"
+    assert str(exc_info.value) == "$HOST does not exist"
 
 
 def test_env_section_get_existing_key():

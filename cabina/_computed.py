@@ -1,6 +1,7 @@
 from typing import Any, Callable
 
 from ._core import MetaBase
+from .errors import ConfigError, Error
 
 
 def _required(*args: Any) -> Any:
@@ -14,4 +15,7 @@ class computed:
         self._fn = fn
 
     def __get__(self, _: None, owner: MetaBase) -> Any:
-        return self._fn(owner)
+        try:
+            return self._fn(owner)
+        except Error as e:
+            raise ConfigError(f"Failed to return @computed '{self._fn.__name__}' ({e})") from None

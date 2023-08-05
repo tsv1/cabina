@@ -19,7 +19,7 @@ def test_env_value_get_nonexisting_key():
         env("<key>")
 
     assert exc_info.type is EnvKeyError
-    assert str(exc_info.value) == "'<key>' does not exist"
+    assert str(exc_info.value) == "$<key> does not exist"
 
 
 def test_env_value_get_default_value():

@@ -22,7 +22,7 @@ def test_lazy_env_section_get_nonexisting_key():
         Section.API_HOST
 
     assert exc_info.type is EnvKeyError
-    assert str(exc_info.value) == "'HOST' does not exist"
+    assert str(exc_info.value) == "$HOST does not exist"
 
 
 def test_lazy_env_section_get_existing_key():

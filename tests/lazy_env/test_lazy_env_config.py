@@ -22,7 +22,7 @@ def test_lazy_env_config_get_nonexisting_key():
         Config.API_HOST
 
     assert exc_info.type is EnvKeyError
-    assert str(exc_info.value) == "'HOST' does not exist"
+    assert str(exc_info.value) == "$HOST does not exist"
 
 
 def test_lazy_env_config_get_existing_key():
@@ -68,8 +68,8 @@ def test_lazy_env_config_prefetch_with_nonexisting_keys():
 
     message = "\n".join([
         "Failed to prefetch:",
-        "- Config.API_HOST: 'HOST' does not exist",
-        "- Config.API_PORT: 'PORT' does not exist",
+        "- Config.API_HOST: $HOST does not exist",
+        "- Config.API_PORT: $PORT does not exist",
     ])
     assert exc_info.type is ConfigEnvError
     assert str(exc_info.value) == message
@@ -87,7 +87,7 @@ def test_lazy_env_config_prefetch_with_invalid_values():
 
     message = "\n".join([
         "Failed to prefetch:",
-        "- Config.API_HOST: 'HOST' does not exist",
+        "- Config.API_HOST: $HOST does not exist",
         "- Config.API_PORT: Failed to parse 'number' as int",
     ])
     assert exc_info.type is ConfigEnvError
@@ -110,8 +110,8 @@ def test_lazy_env_config_prefetch_with_sections():
 
     message = "\n".join([
         "Failed to prefetch:",
-        "- Config.TZ: 'TZ' does not exist",
-        "- Config.Main.API_PORT: 'PORT' does not exist",
+        "- Config.TZ: $TZ does not exist",
+        "- Config.Main.API_PORT: $PORT does not exist",
     ])
     assert exc_info.type is ConfigEnvError
     assert str(exc_info.value) == message

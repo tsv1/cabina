@@ -305,7 +305,7 @@ def test_section_config_members_repr():
     assert repr(Conf) == "\n".join([
         "class <Conf>:",
         "    DEBUG = False",
-        "    TZ = EnvKeyError(\"'TZ' does not exist\")",
+        "    TZ = EnvKeyError('$TZ does not exist')",
     ])
 
 

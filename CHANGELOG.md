@@ -2,7 +2,7 @@
 
 ## v1.0
 
-### v1.0.0 (date)
+### v1.0.0 (2023-08-05)
 
 - Separate envs (`env` -> `Environment()`, `lazy_env` -> `LazyEnvironment()`) [#11](https://github.com/tsv1/cabina/pull/11)
 

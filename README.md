@@ -54,7 +54,7 @@ print(Config)
 * [Raw Values](#raw-values)
 * [Custom Parsers](#custom-parsers)
 * [JSON Parser](#json-parser)
-* [Prefetch Env Vars](#prefetch-env-vars)
+* [Lazy Env](#lazy-env)
 * [Env Vars Prefix](#env-vars-prefix)
 * [Inheritance](#inheritance)
 
@@ -192,7 +192,7 @@ assert Config.IMAGE_SETTINGS == {
 ```
 
 
-### Prefetch Env Vars
+### Lazy Env
 
 ```sh
 export DEBUG=yes;
@@ -201,16 +201,16 @@ export API_PORT=80a;  # <- extra "a"
 
 ```python
 import cabina
-from cabina import env
+from cabina import lazy_env
 
 
 class Config(cabina.Config, cabina.Section):
-    DEBUG = env.bool("DEBUG")
-    API_HOST = env.str("API_HOST")
-    API_PORT = env.int("API_PORT")
+    DEBUG = lazy_env.bool("DEBUG")
+    API_HOST = lazy_env.str("API_HOST")  # the actual value is retrieved on first access
+    API_PORT = lazy_env.int("API_PORT")
 
 
-Config.prefetch()  # <- prefetch method
+Config.prefetch()  # <- prefetch() accesses all variables
 
 # ConfigEnvError: Failed to prefetch:
 # - Config.API_HOST: 'API_HOST' does not exist

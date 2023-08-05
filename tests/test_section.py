@@ -244,7 +244,7 @@ def test_section_members_repr():
     assert repr(Main) == "\n".join([
         "class <Main>:",
         "    DEBUG = False",
-        "    TZ = EnvKeyError(\"'TZ' does not exist\")",
+        "    TZ = EnvKeyError('$TZ does not exist')",
     ])
 
 
@@ -296,6 +296,37 @@ def test_section_computed():
             return f"http://{cls.HOST}:{cls.PORT}"
 
     assert Section.URL == "http://localhost:8080"
+
+
+def test_section_computed_env():
+    class Section(cabina.Section):
+        @computed
+        def URL(cls):
+            host = cabina.env.str("HOST")
+            port = cabina.env.str("PORT")
+            return f"http://{host}:{port}"
+
+    with raises(Exception) as exc_info:
+        Section.URL
+
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == "Failed to return @computed 'URL' ($HOST does not exist)"
+
+
+def test_section_computed_lazy_env():
+    class Section(cabina.Section):
+        HOST = cabina.lazy_env.str("HOST")
+        PORT = cabina.lazy_env.str("PORT")
+
+        @computed
+        def URL(cls):
+            return f"http://{cls.HOST}:{cls.PORT}"
+
+    with raises(Exception) as exc_info:
+        Section.URL
+
+    assert exc_info.type is ConfigError
+    assert str(exc_info.value) == "Failed to return @computed 'URL' ($HOST does not exist)"
 
 
 def test_section_empty_print():

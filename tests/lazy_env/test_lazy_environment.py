@@ -2,7 +2,7 @@ from typing import cast
 
 from pytest import raises
 
-from cabina import LazyEnvironment, FutureValue
+from cabina import FutureValue, LazyEnvironment
 from cabina.errors import EnvKeyError
 
 

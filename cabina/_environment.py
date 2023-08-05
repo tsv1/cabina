@@ -1,6 +1,6 @@
 import os
 from functools import partial
-from typing import Any, Callable, Dict, Mapping, Tuple, Union
+from typing import Any, Callable, Mapping, Tuple, Union
 
 from niltype import Nil, NilType
 

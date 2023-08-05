@@ -74,6 +74,14 @@ def test_import_env():
     from cabina import env
 
 
+def test_import_lazy_environment():
+    from cabina import LazyEnvironment
+
+
+def test_import_lazy_env():
+    from cabina import lazy_env
+
+
 def test_import_future_value():
     from cabina import FutureValue
 

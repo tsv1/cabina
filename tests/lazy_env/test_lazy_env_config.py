@@ -1,19 +1,19 @@
 from pytest import raises
 
 import cabina
-from cabina import Environment
+from cabina import LazyEnvironment
 from cabina.errors import ConfigEnvError, EnvKeyError
 
 
-def test_env_config_define_nonexisting_key():
-    env = Environment({})
+def test_lazy_env_config_define_nonexisting_key():
+    env = LazyEnvironment({})
 
     class Config(cabina.Config, cabina.Section):
         API_HOST = env.str("HOST")
 
 
-def test_env_config_get_nonexisting_key():
-    env = Environment({})
+def test_lazy_env_config_get_nonexisting_key():
+    env = LazyEnvironment({})
 
     class Config(cabina.Config, cabina.Section):
         API_HOST = env.str("HOST")
@@ -25,8 +25,8 @@ def test_env_config_get_nonexisting_key():
     assert str(exc_info.value) == "'HOST' does not exist"
 
 
-def test_env_config_get_existing_key():
-    env = Environment({"HOST": "127.0.0.1"})
+def test_lazy_env_config_get_existing_key():
+    env = LazyEnvironment({"HOST": "127.0.0.1"})
 
     class Config(cabina.Config, cabina.Section):
         API_HOST = env.str("HOST")
@@ -34,8 +34,8 @@ def test_env_config_get_existing_key():
     assert Config.API_HOST == "127.0.0.1"
 
 
-def test_env_config_get_key_nonexisting_with_default():
-    env = Environment({"API_HOST": "127.0.0.1"})
+def test_lazy_env_config_get_key_nonexisting_with_default():
+    env = LazyEnvironment({"API_HOST": "127.0.0.1"})
 
     class Config(cabina.Config, cabina.Section):
         API_HOST = env.str("HOST", default="localhost")
@@ -43,8 +43,8 @@ def test_env_config_get_key_nonexisting_with_default():
     assert Config.API_HOST == "localhost"
 
 
-def test_env_config_prefetch():
-    env = Environment({
+def test_lazy_env_config_prefetch():
+    env = LazyEnvironment({
         "HOST": "localhost",
         "PORT": "8080",
     })
@@ -56,8 +56,8 @@ def test_env_config_prefetch():
     Config.prefetch()
 
 
-def test_env_config_prefetch_with_nonexisting_keys():
-    env = Environment({})
+def test_lazy_env_config_prefetch_with_nonexisting_keys():
+    env = LazyEnvironment({})
 
     class Config(cabina.Config, cabina.Section):
         API_HOST = env.str("HOST")
@@ -75,8 +75,8 @@ def test_env_config_prefetch_with_nonexisting_keys():
     assert str(exc_info.value) == message
 
 
-def test_env_config_prefetch_with_invalid_values():
-    env = Environment({"PORT": "number"})
+def test_lazy_env_config_prefetch_with_invalid_values():
+    env = LazyEnvironment({"PORT": "number"})
 
     class Config(cabina.Config, cabina.Section):
         API_HOST = env.str("HOST")
@@ -94,8 +94,8 @@ def test_env_config_prefetch_with_invalid_values():
     assert str(exc_info.value) == message
 
 
-def test_env_config_prefetch_with_sections():
-    env = Environment({"DEBUG": "yes"})
+def test_lazy_env_config_prefetch_with_sections():
+    env = LazyEnvironment({"DEBUG": "yes"})
 
     class Config(cabina.Config, cabina.Section):
         TZ = env.str("TZ")

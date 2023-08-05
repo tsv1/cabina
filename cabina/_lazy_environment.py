@@ -1,10 +1,10 @@
 import os
 from functools import partial
-from typing import Any, Callable, Dict, Mapping, Tuple, Union
+from typing import Any, Callable, Dict, Mapping, Tuple, Union, cast
 
 from niltype import Nil, NilType
 
-from ._future_value import ValueType
+from ._future_value import FutureValue, ValueType
 from .errors import EnvKeyError
 from .parsers import (
     parse_as_is,
@@ -17,13 +17,13 @@ from .parsers import (
 )
 
 
-class Environment:
+class LazyEnvironment:
     def __init__(self, environ: Mapping[str, str] = os.environ, *, prefix: str = "") -> None:
         self._environ = environ
         self._prefix = prefix
 
     def __repr__(self) -> str:
-        return f"cabina.Environment({self._environ!r})"
+        return f"cabina.LazyEnvironment({self._environ!r})"
 
     def get(self, name: str, default: Union[NilType, ValueType] = Nil,
             parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
@@ -40,7 +40,12 @@ class Environment:
 
     def raw(self, name: str, default: Union[NilType, ValueType] = Nil,
             parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:
-        return self.get(name, default, parser)
+        kwargs: Dict[str, Any] = {}
+        if default is not Nil:
+            kwargs["default"] = default
+        if parser is not parse_as_is:
+            kwargs["parser"] = parser
+        return cast(ValueType, FutureValue[ValueType](self.get, name, **kwargs))
 
     def __call__(self, name: str, default: Union[NilType, ValueType] = Nil,
                  parser: Callable[[str], ValueType] = parse_as_is) -> ValueType:

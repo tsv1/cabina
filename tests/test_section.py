@@ -239,7 +239,7 @@ def test_section_repr():
 def test_section_members_repr():
     class Main(cabina.Section):
         DEBUG = False
-        TZ = cabina.env.str("TZ")
+        TZ = cabina.lazy_env.str("TZ")
 
     assert repr(Main) == "\n".join([
         "class <Main>:",

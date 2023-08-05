@@ -300,7 +300,7 @@ def test_section_config_repr():
 def test_section_config_members_repr():
     class Conf(cabina.Config, cabina.Section):
         DEBUG = False
-        TZ = cabina.env.str("TZ")
+        TZ = cabina.lazy_env.str("TZ")
 
     assert repr(Conf) == "\n".join([
         "class <Conf>:",

@@ -1,25 +1,16 @@
 from pytest import raises
 
 import cabina
-from cabina import Environment
+from cabina import Environment, LazyEnvironment
 from cabina.errors import ConfigEnvError, EnvKeyError
 
 
 def test_env_config_define_nonexisting_key():
     env = Environment({})
 
-    class Config(cabina.Config, cabina.Section):
-        API_HOST = env.str("HOST")
-
-
-def test_env_config_get_nonexisting_key():
-    env = Environment({})
-
-    class Config(cabina.Config, cabina.Section):
-        API_HOST = env.str("HOST")
-
     with raises(Exception) as exc_info:
-        Config.API_HOST
+        class Config(cabina.Config, cabina.Section):
+            API_HOST = env.str("HOST")
 
     assert exc_info.type is EnvKeyError
     assert str(exc_info.value) == "'HOST' does not exist"
@@ -57,11 +48,14 @@ def test_env_config_prefetch():
 
 
 def test_env_config_prefetch_with_nonexisting_keys():
-    env = Environment({})
+    environ = {"DEBUG": "true"}
+    env = Environment(environ)
+    lazy_env = LazyEnvironment(environ)
 
     class Config(cabina.Config, cabina.Section):
-        API_HOST = env.str("HOST")
-        API_PORT = env.int("PORT")
+        API_HOST = lazy_env.str("HOST")
+        API_PORT = lazy_env.int("PORT")
+        DEBUG = env.bool("DEBUG")
 
     with raises(Exception) as exc_info:
         Config.prefetch()
@@ -76,11 +70,14 @@ def test_env_config_prefetch_with_nonexisting_keys():
 
 
 def test_env_config_prefetch_with_invalid_values():
-    env = Environment({"PORT": "number"})
+    environ = {"DEBUG": "true", "PORT": "number"}
+    env = Environment(environ)
+    lazy_env = LazyEnvironment(environ)
 
     class Config(cabina.Config, cabina.Section):
-        API_HOST = env.str("HOST")
-        API_PORT = env.int("PORT")
+        API_HOST = lazy_env.str("HOST")
+        API_PORT = lazy_env.int("PORT")
+        DEBUG = env.bool("DEBUG")
 
     with raises(Exception) as exc_info:
         Config.prefetch()
@@ -89,29 +86,6 @@ def test_env_config_prefetch_with_invalid_values():
         "Failed to prefetch:",
         "- Config.API_HOST: 'HOST' does not exist",
         "- Config.API_PORT: Failed to parse 'number' as int",
-    ])
-    assert exc_info.type is ConfigEnvError
-    assert str(exc_info.value) == message
-
-
-def test_env_config_prefetch_with_sections():
-    env = Environment({"DEBUG": "yes"})
-
-    class Config(cabina.Config, cabina.Section):
-        TZ = env.str("TZ")
-        DEBUG = env.bool("DEBUG")
-
-        class Main(cabina.Section):
-            API_HOST = env.str("HOST", default="localhost")
-            API_PORT = env.int("PORT")
-
-    with raises(Exception) as exc_info:
-        Config.prefetch()
-
-    message = "\n".join([
-        "Failed to prefetch:",
-        "- Config.TZ: 'TZ' does not exist",
-        "- Config.Main.API_PORT: 'PORT' does not exist",
     ])
     assert exc_info.type is ConfigEnvError
     assert str(exc_info.value) == message

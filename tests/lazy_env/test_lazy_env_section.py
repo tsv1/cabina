@@ -1,19 +1,19 @@
 from pytest import raises
 
 import cabina
-from cabina import Environment
+from cabina import LazyEnvironment
 from cabina.errors import EnvKeyError
 
 
-def test_env_section_define_nonexisting_key():
-    env = Environment({})
+def test_lazy_env_section_define_nonexisting_key():
+    env = LazyEnvironment({})
 
     class Section(cabina.Section):
         API_HOST = env.str("HOST")
 
 
-def test_env_section_get_nonexisting_key():
-    env = Environment({})
+def test_lazy_env_section_get_nonexisting_key():
+    env = LazyEnvironment({})
 
     class Section(cabina.Section):
         API_HOST = env.str("HOST")
@@ -25,8 +25,8 @@ def test_env_section_get_nonexisting_key():
     assert str(exc_info.value) == "'HOST' does not exist"
 
 
-def test_env_section_get_existing_key():
-    env = Environment({"HOST": "127.0.0.1"})
+def test_lazy_env_section_get_existing_key():
+    env = LazyEnvironment({"HOST": "127.0.0.1"})
 
     class Section(cabina.Section):
         API_HOST = env.str("HOST")
@@ -34,8 +34,8 @@ def test_env_section_get_existing_key():
     assert Section.API_HOST == "127.0.0.1"
 
 
-def test_env_section_get_key_nonexisting_with_default():
-    env = Environment({"API_HOST": "127.0.0.1"})
+def test_lazy_env_section_get_key_nonexisting_with_default():
+    env = LazyEnvironment({"API_HOST": "127.0.0.1"})
 
     class Section(cabina.Section):
         API_HOST = env.str("HOST", default="localhost")

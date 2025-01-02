@@ -1,8 +1,8 @@
 bump2version==1.0.1
 codecov==2.1.13
-coverage==7.2.7
-flake8==5.0.4
-isort==5.11.5
-mypy==1.4.1
-pytest==7.4.0
-pytest-cov==4.1.0
+coverage==7.6.1
+flake8==7.1.1
+isort==5.13.2
+mypy==1.14.1
+pytest==8.3.4
+pytest-cov==5.0.0

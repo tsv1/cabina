@@ -63,8 +63,6 @@ Below are some common patterns and features you can use with **cabina**:
 - [Env Vars Prefix](#env-vars-prefix)  
 - [Inheritance](#inheritance)
 
----
-
 ### Root Section
 
 You can use **cabina** for simple, flat configurations by inheriting `cabina.Section` in your main config:
@@ -85,8 +83,6 @@ class Config(cabina.Config, cabina.Section):  # Note the inheritance
 assert Config.API_HOST == "localhost"
 assert Config.API_PORT == 8080
 ```
-
----
 
 ### Computed Values
 
@@ -112,8 +108,6 @@ class Config(cabina.Config, cabina.Section):
 assert Config.API_URL == "http://localhost:8080"
 ```
 
----
-
 ### Default Values
 
 Provide a default if an environment variable isn’t set:
@@ -133,8 +127,6 @@ class Config(cabina.Config, cabina.Section):
 assert Config.API_HOST == "127.0.0.1"
 assert Config.API_PORT == 8080
 ```
-
----
 
 ### Raw Values
 
@@ -156,8 +148,6 @@ assert Config.DEBUG_RAW == " yes"   # The raw value includes whitespace
 assert Config.DEBUG_STR == "yes"    # Whitespace is stripped
 ```
 
----
-
 ### Custom Parsers
 
 Use custom parsing functions to handle special formats. For instance, parse a duration string with `pytimeparse`:
@@ -176,8 +166,6 @@ class Config(cabina.Config, cabina.Section):
 
 assert Config.HTTP_TIMEOUT == 10
 ```
-
----
 
 ### JSON Parser
 
@@ -199,8 +187,6 @@ assert Config.IMAGE_SETTINGS == {
     "AllowedContentTypes": ["image/png", "image/jpeg"]
 }
 ```
-
----
 
 ### Lazy Env
 
@@ -227,8 +213,6 @@ Config.prefetch()
 # - Config.API_PORT: Failed to parse '80a' as int
 ```
 
----
-
 ### Env Vars Prefix
 
 Use a prefix for all your environment variables to avoid collisions:
@@ -250,8 +234,6 @@ class Config(cabina.Config, cabina.Section):
 assert Config.API_HOST == "localhost"
 assert Config.API_PORT == 8080
 ```
-
----
 
 ### Inheritance
 
@@ -278,16 +260,6 @@ assert ConfigLocal.Api.API_HOST == "localhost"
 assert ConfigLocal.Api.API_PORT == 5000
 ```
 
----
-
 ## Contributing
 
 Contributions, bug reports, and feature requests are welcome! Feel free to open an [issue](https://github.com/tsv1/cabina/issues) or submit a pull request.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-Happy configuring with **cabina**!

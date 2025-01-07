@@ -1,6 +1,7 @@
 from typing import Any, Callable
 
 from ._core import MetaBase
+from .errors import ConfigError
 
 
 def _required(*args: Any) -> Any:
@@ -25,8 +26,8 @@ class computed:
 
     Example:
         @computed
-        def some_property(cls):
-            return cls.some_value * 2
+        def API_URL(cls):
+            return f"http://{cls.API_HOST}:{cls.API_PORT}"
     """
 
     def __init__(self, fn: Callable[[Any], Any] = _required) -> None:
@@ -47,5 +48,9 @@ class computed:
         :param _: Unused; placeholder for the instance (as this is a class-level property).
         :param owner: The class (MetaBase) to which the computed property belongs.
         :return: The computed value of the property.
+        :raises ConfigError: If the computation of the property value fails.
         """
-        return self._fn(owner)
+        try:
+            return self._fn(owner)
+        except BaseException as e:
+            raise ConfigError(f"Failed to return @computed '{self._fn.__name__}' ({e})")

@@ -13,7 +13,7 @@ def find_dev_required():
 
 setup(
     name="cabina",
-    version="1.1.1",
+    version="1.1.2",
     description="Configuration with typed env vars",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
